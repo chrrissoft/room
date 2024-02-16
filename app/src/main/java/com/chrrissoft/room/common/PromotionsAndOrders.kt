@@ -3,8 +3,8 @@ package com.chrrissoft.room.common
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import com.chrrissoft.room.orders.Order
-import com.chrrissoft.room.promotions.Promotion
+import com.chrrissoft.room.orders.db.objects.Order
+import com.chrrissoft.room.promotions.db.objects.Promotion
 
 @Entity(
     tableName = "promotions_and_orders",
@@ -23,6 +23,6 @@ import com.chrrissoft.room.promotions.Promotion
     ]
 )
 data class PromotionsAndOrders(
-    @ColumnInfo(name = "promotion_id") val promotionId: Long,
-    @ColumnInfo(name = "order_id") val orderId: Long,
+    @ColumnInfo(name = "promotion_id") val promotionId: String,
+    @ColumnInfo(name = "order_id") val orderId: String,
 )

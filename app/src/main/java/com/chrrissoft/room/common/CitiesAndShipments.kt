@@ -3,8 +3,8 @@ package com.chrrissoft.room.common
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import com.chrrissoft.room.cities.City
-import com.chrrissoft.room.shipping.Shipping
+import com.chrrissoft.room.cities.db.objects.City
+import com.chrrissoft.room.shipments.db.objects.Shipping
 
 @Entity(
     tableName = "cities_and_shipments",
@@ -23,6 +23,6 @@ import com.chrrissoft.room.shipping.Shipping
     ]
 )
 data class CitiesAndShipments(
-    @ColumnInfo(name = "city_id") val cityId: Long,
-    @ColumnInfo(name = "shipping_id") val shippingId: Long,
+    @ColumnInfo(name = "city_id") val cityId: String,
+    @ColumnInfo(name = "shipping_id") val shippingId: String,
 )

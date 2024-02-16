@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">Room</string>
+    <string name="carriers">Carriers</string>
+    <string name="categories">Categories</string>
+    <string name="cities">Cities</string>
+    <string name="costumers">Costumers</string>
+    <string name="countries">Countries</string>
+    <string name="inventories">Inventories</string>
+    <string name="orders">Orders</string>
+    <string name="payments">Payments</string>
+    <string name="products">Products</string>
+    <string name="promotions">Promotions</string>
+    <string name="reviews">Reviews</string>
+    <string name="sales">Sales</string>
+    <string name="sellers">Sellers</string>
+    <string name="shipments">Shipments</string>
+    <string name="suppliers">Suppliers</string>
 </resources>

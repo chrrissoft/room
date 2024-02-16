@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.chrrissoft.room.products.Product
-import com.chrrissoft.room.sales.Sale
+import com.chrrissoft.room.products.db.objects.Product
+import com.chrrissoft.room.sales.db.objects.Sale
 
 @Entity(
     tableName = "products_and_sales",
@@ -23,8 +23,8 @@ import com.chrrissoft.room.sales.Sale
     ]
 )
 data class ProductsAndSales(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id") val id: Long = 0L,
-    @ColumnInfo(name = "product_id") val productId: Long,
-    @ColumnInfo(name = "sale_id") val saleId: Long,
+    @PrimaryKey
+    @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "product_id") val productId: String,
+    @ColumnInfo(name = "sale_id") val saleId: String,
 )

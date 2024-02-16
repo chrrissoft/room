@@ -4,8 +4,8 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import com.chrrissoft.room.cities.City
-import com.chrrissoft.room.suppliers.Supplier
+import com.chrrissoft.room.cities.db.objects.City
+import com.chrrissoft.room.suppliers.db.objects.Supplier
 
 @Entity(
     tableName = "cities_and_suppliers",
@@ -23,8 +23,8 @@ import com.chrrissoft.room.suppliers.Supplier
     ]
 )
 data class CitiesAndSuppliers(
-    @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id") val id: Long = 0L,
-    @ColumnInfo(name = "city_id") val cityId: Long,
-    @ColumnInfo(name = "supplier_id") val supplierId: Long,
+    @PrimaryKey
+    @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "city_id") val cityId: String,
+    @ColumnInfo(name = "supplier_id") val supplierId: String,
 )

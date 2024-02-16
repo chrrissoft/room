@@ -3,8 +3,8 @@ package com.chrrissoft.room.common
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import com.chrrissoft.room.sales.Sale
-import com.chrrissoft.room.suppliers.Supplier
+import com.chrrissoft.room.sales.db.objects.Sale
+import com.chrrissoft.room.suppliers.db.objects.Supplier
 
 @Entity(
     tableName = "supplier_and_sales",
@@ -23,6 +23,6 @@ import com.chrrissoft.room.suppliers.Supplier
     ]
 )
 data class SupplierAndSales(
-    @ColumnInfo(name = "supplier_id") val supplierId: Long,
-    @ColumnInfo(name = "sale_id") val saleId: Long,
+    @ColumnInfo(name = "supplier_id") val supplierId: String,
+    @ColumnInfo(name = "sale_id") val saleId: String,
 )

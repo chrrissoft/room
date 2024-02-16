@@ -3,12 +3,12 @@ package com.chrrissoft.room.common
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import com.chrrissoft.room.promotions.Promotion
-import com.chrrissoft.room.sales.Sale
+import com.chrrissoft.room.promotions.db.objects.Promotion
+import com.chrrissoft.room.sales.db.objects.Sale
 
 @Entity(
     tableName = "sales_and_promotions",
-    primaryKeys = ["sales_id", "promotion_id"],
+    primaryKeys = ["sale_id", "promotion_id"],
     foreignKeys = [
         ForeignKey(
             onUpdate = ForeignKey.CASCADE,
@@ -23,6 +23,6 @@ import com.chrrissoft.room.sales.Sale
     ]
 )
 data class SalesAndPromotions(
-    @ColumnInfo(name = "sale_id") val salesId: Long,
-    @ColumnInfo(name = "promotion_id") val promotionId: Long,
+    @ColumnInfo(name = "sale_id") val salesId: String,
+    @ColumnInfo(name = "promotion_id") val promotionId: String,
 )
