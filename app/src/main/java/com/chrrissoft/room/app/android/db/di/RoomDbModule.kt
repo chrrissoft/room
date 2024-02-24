@@ -14,8 +14,10 @@ import javax.inject.Singleton
 object RoomDbModule {
     @Provides
     @Singleton
-    fun provide(app: RoomApp) : RoomDb =
-        Room.databaseBuilder(app, RoomDb::class.java, DB_NAME).build()
+    fun provide(app: RoomApp): RoomDb =
+        Room.databaseBuilder(app, RoomDb::class.java, DB_NAME)
+            .fallbackToDestructiveMigration()
+            .build()
 
     private const val DB_NAME = "RoomDatabase_Chrrissoft"
 }

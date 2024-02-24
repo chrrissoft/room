@@ -59,7 +59,7 @@ object ComposeUtils {
     @Composable
     fun setBarsColors(
         status: Color = MaterialTheme.colorScheme.primaryContainer,
-        bottom: Color = MaterialTheme.colorScheme.onPrimary,
+        bottom: Color = MaterialTheme.colorScheme.primaryContainer,
     ) {
         val systemUiController = rememberSystemUiController()
 

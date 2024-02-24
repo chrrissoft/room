@@ -16,10 +16,14 @@ import com.chrrissoft.room.carriers.db.objects.Carrier
 data class Shipping(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
-    @ColumnInfo(name = "state") val state: ShippingState,
-    @ColumnInfo(name = "carrier_id") val carrierId: String,
+    @ColumnInfo(name = "state") val state: ShippingState = ShippingState.PENDING,
+    @ColumnInfo(name = "carrier_id") val carrierId: String = "",
 ) {
     enum class ShippingState {
         PENDING, ON_THE_WAY, DELIVERED
+    }
+
+    companion object {
+        val invalid = Shipping("")
     }
 }

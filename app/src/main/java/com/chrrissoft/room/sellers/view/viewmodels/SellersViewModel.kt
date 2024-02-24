@@ -7,6 +7,7 @@ import com.chrrissoft.room.sellers.db.objects.SellerWithRelationship
 import com.chrrissoft.room.sellers.db.usecases.DeleteSellersUseCase
 import com.chrrissoft.room.sellers.db.usecases.GetSellersUseCase
 import com.chrrissoft.room.sellers.db.usecases.SaveSellersUseCase
+import com.chrrissoft.room.sellers.view.events.SellersEvent
 import com.chrrissoft.room.sellers.view.events.SellersEvent.OnChange
 import com.chrrissoft.room.sellers.view.events.SellersEvent.OnCreate
 import com.chrrissoft.room.sellers.view.events.SellersEvent.OnDelete
@@ -16,6 +17,7 @@ import com.chrrissoft.room.sellers.view.states.SellersState
 import com.chrrissoft.room.sellers.view.viewmodels.SellersViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
+import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,6 +52,7 @@ class SellersViewModel @Inject constructor(
         fun onEvent(event: OnChange) = updateState(seller = Success(event.data))
 
         fun onEvent(event: OnDelete) = deleteSellers(event.data.mapValues { it.value.seller })
+        fun onEvent(event: SellersEvent.OnChangePage) = updateState(page = event.data)
     }
 
 
@@ -99,8 +102,9 @@ class SellersViewModel @Inject constructor(
     private fun updateState(
         sellers: ResState<Map<String, SellerWithRelationship>> = state.sellers,
         seller: ResState<Pair<String, SellerWithRelationship>> = state.seller,
+        page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(seller = seller, sellers = sellers, snackbar = snackbar) }
+        _state.update { it.copy(seller = seller, sellers = sellers, page = page, snackbar = snackbar) }
     }
 }

@@ -28,15 +28,7 @@ sealed class Screen(val baseRoute: String, val label: Int, val icon: ImageVector
         override val route = baseRoute
     }
 
-    object Inventories : Screen(("Inventories"), R.string.inventories, Icons.Rounded.Favorite) {
-        override val route = baseRoute
-    }
-
     object Orders : Screen(("Orders"), R.string.orders, Icons.Rounded.Favorite) {
-        override val route = baseRoute
-    }
-
-    object Payments : Screen(("Payments"), R.string.payments, Icons.Rounded.Favorite) {
         override val route = baseRoute
     }
 
@@ -45,10 +37,6 @@ sealed class Screen(val baseRoute: String, val label: Int, val icon: ImageVector
     }
 
     object Promotions : Screen(("Promotions"), R.string.promotions, Icons.Rounded.Favorite) {
-        override val route = baseRoute
-    }
-
-    object Reviews : Screen(("Reviews"), R.string.reviews, Icons.Rounded.Favorite) {
         override val route = baseRoute
     }
 
@@ -76,12 +64,9 @@ sealed class Screen(val baseRoute: String, val label: Int, val icon: ImageVector
             add(Cities)
             add(Costumers)
             add(Countries)
-            add(Inventories)
             add(Orders)
-            add(Payments)
             add(Products)
             add(Promotions)
-            add(Reviews)
             add(Sales)
             add(Sellers)
             add(Shipments)

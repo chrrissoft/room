@@ -16,6 +16,8 @@ import com.chrrissoft.room.shipments.view.states.ShipmentsState
 import com.chrrissoft.room.shipments.view.viewmodels.ShipmentsViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
+import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.shipments.view.events.ShipmentsEvent
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -47,15 +49,16 @@ class ShipmentsViewModel @Inject constructor(
 
         fun onEvent(event: OnCreate) = create(event.data)
 
-        fun onEvent(event: OnChange) = updateState(Shipping = Success(event.data))
+        fun onEvent(event: OnChange) = updateState(shipping = Success(event.data))
 
         fun onEvent(event: OnDelete) = deleteShipments(event.data.mapValues { it.value.shipping })
+        fun onEvent(event: ShipmentsEvent.OnChangePage) = updateState(page = event.data)
     }
 
 
     private fun create(data: Pair<String, ShippingWithRelationship>) {
         (state.shipping as? Success)?.data?.let { saveShipments(mapOf(it)) }
-        updateState(Shipping = Success(data))
+        updateState(shipping = Success(data))
     }
 
 
@@ -88,7 +91,7 @@ class ShipmentsViewModel @Inject constructor(
     ) = scope.launch { GetShipmentsUseCase().collect { block(it) } }
 
 
-    private fun loadShipping(id: String) = collectShipping(id) { updateState(Shipping = it) }
+    private fun loadShipping(id: String) = collectShipping(id) { updateState(shipping = it) }
 
     private fun collectShipping(
         id: String,
@@ -98,9 +101,10 @@ class ShipmentsViewModel @Inject constructor(
 
     private fun updateState(
         shipments: ResState<Map<String, ShippingWithRelationship>> = state.shipments,
-        Shipping: ResState<Pair<String, ShippingWithRelationship>> = state.shipping,
+        shipping: ResState<Pair<String, ShippingWithRelationship>> = state.shipping,
+        page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(shipping = Shipping, shipments = shipments, snackbar = snackbar) }
+        _state.update { it.copy(shipping = shipping, shipments = shipments, page = page, snackbar = snackbar) }
     }
 }

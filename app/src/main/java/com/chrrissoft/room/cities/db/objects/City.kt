@@ -17,6 +17,10 @@ import com.chrrissoft.room.countries.db.objects.Country
 data class City(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
-    @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "country_id") val countryId: String,
-)
+    @ColumnInfo(name = "name") val name: String = "",
+    @ColumnInfo(name = "country_id") val countryId: String = "",
+) {
+    companion object {
+        val invalid = City("")
+    }
+}

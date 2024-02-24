@@ -7,6 +7,7 @@ import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
 import com.chrrissoft.room.orders.db.usecases.DeleteOrdersUseCase
 import com.chrrissoft.room.orders.db.usecases.GetOrdersUseCase
 import com.chrrissoft.room.orders.db.usecases.SaveOrdersUseCase
+import com.chrrissoft.room.orders.view.events.OrdersEvent
 import com.chrrissoft.room.orders.view.events.OrdersEvent.OnChange
 import com.chrrissoft.room.orders.view.events.OrdersEvent.OnCreate
 import com.chrrissoft.room.orders.view.events.OrdersEvent.OnDelete
@@ -16,6 +17,7 @@ import com.chrrissoft.room.orders.view.states.OrdersState
 import com.chrrissoft.room.orders.view.viewmodels.OrdersViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
+import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,6 +52,7 @@ class OrdersViewModel @Inject constructor(
         fun onEvent(event: OnChange) = updateState(order = Success(event.data))
 
         fun onEvent(event: OnDelete) = deleteOrders(event.data.mapValues { it.value.order })
+        fun onEvent(event: OrdersEvent.OnChangePage)  = updateState(page = event.data)
     }
 
 
@@ -99,8 +102,9 @@ class OrdersViewModel @Inject constructor(
     private fun updateState(
         orders: ResState<Map<String, OrderWithRelationship>> = state.orders,
         order: ResState<Pair<String, OrderWithRelationship>> = state.order,
+        page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(order = order, orders = orders, snackbar = snackbar) }
+        _state.update { it.copy(order = order, orders = orders, page = page, snackbar = snackbar) }
     }
 }

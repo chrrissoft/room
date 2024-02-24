@@ -11,7 +11,7 @@ import javax.inject.Inject
 class SaveCostumersUseCase @Inject constructor(private val dao: CostumerDao) {
     operator fun invoke(data: List<CostumerWithRelationship>): Flow<ResState<Any>> {
         return ResFlow {
-            dao.insert(data.map { it.costumer })
+            dao.insert(data.map { it.costumer.copy(cityId = it.city.id) })
             emit(Success(data = 0))
         }
     }

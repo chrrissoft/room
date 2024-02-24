@@ -15,90 +15,123 @@ import com.chrrissoft.room.products.db.objects.ProductWithRelationship
 import com.chrrissoft.room.products.view.ui.ProductListSheet
 import com.chrrissoft.room.sales.db.objects.SaleWithRelationship
 import com.chrrissoft.room.sales.view.ui.SaleListSheet
+import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.view.ResState
 import com.chrrissoft.room.suppliers.db.objects.SupplierWithRelationship
+import com.chrrissoft.room.ui.components.RoomDivider
 import com.chrrissoft.room.ui.components.SelectableRoomTextField
+import com.chrrissoft.room.utils.PairUtils.mapSecond
 
 @Composable
 fun SupplierWithRelationship(
-    state: SupplierWithRelationship,
-    onStateChange: (SupplierWithRelationship) -> Unit,
-    sales: List<SaleWithRelationship>,
-    cities: List<CityWithRelationship>,
+    state: ResState<Pair<String, SupplierWithRelationship>>,
+    onStateChange: (Pair<String, SupplierWithRelationship>) -> Unit,
+    sales: ResState<Map<String, SaleWithRelationship>>,
+    cities: ResState<Map<String, CityWithRelationship>>,
     products: List<ProductWithRelationship>,
-    categories: List<CategoryWithRelationship>,
+    categories: ResState<Map<String, CategoryWithRelationship>>,
     modifier: Modifier = Modifier,
 ) {
-    var showSales by remember { mutableStateOf(value = false) }
+    ResState(state = state) { data ->
 
-    if (showSales) {
-        val selected = remember(state.sales) { state.sales.mapTo(mutableSetOf()) { it.id } }
-        SaleListSheet(
-            state = sales,
-            onSelect = { sale ->
-                (if (state.sales.contains(sale.sale)) state.sales.minus(sale.sale)
-                else state.sales.plus(sale.sale)).let { onStateChange(state.copy(sales = it)) }
-            },
-            selected = selected,
-            onDismissRequest = { showSales = false })
-    }
+        var showSales by remember { mutableStateOf(value = false) }
 
-
-    var showCities by remember { mutableStateOf(value = false) }
-
-    if (showCities) {
-        val selected = remember(state.cities) { state.cities.mapTo(mutableSetOf()) { it.id } }
-        CitiesListSheet(
-            state = cities,
-            onSelect = { city ->
-                (if (state.cities.contains(city.city)) state.cities.minus(city.city)
-                else state.cities.plus(city.city)).let { onStateChange(state.copy(cities = it)) }
-            },
-            selected = selected,
-            onDismissRequest = { showCities = false })
-    }
-
-
-    var showProducts by remember { mutableStateOf(value = false) }
-
-    if (showProducts) {
-        val selected = remember(state.products) { state.products.mapTo(mutableSetOf()) { it.id } }
-        ProductListSheet(
-            state = products,
-            onSelect = { product ->
-                (if (state.products.contains(product.product)) state.products.minus(product.product)
-                else state.products.plus(product.product)).let { onStateChange(state.copy(products = it)) }
-            },
-            selected = selected,
-            onDismissRequest = { showProducts = false })
-    }
-
-
-    var showCategories by remember { mutableStateOf(value = false) }
-
-    if (showCategories) {
-        val selected =
-            remember(state.categories) { state.categories.mapTo(mutableSetOf()) { it.id } }
-        CategoryListSheet(
-            state = categories,
-            onSelect = { category ->
-                (if (state.categories.contains(category.category)) state.categories.minus(category.category)
-                else state.categories.plus(category.category)).let {
-                    onStateChange(
-                        state.copy(
-                            categories = it
-                        )
+        if (showSales) {
+            val selected =
+                remember(data.second.sales) { data.second.sales.mapTo(mutableSetOf()) { it.id } }
+            SaleListSheet(
+                state = sales,
+                onSelect = { sale ->
+                    (if (data.second.sales.contains(sale.second.sale)) data.second.sales.minus(
+                        sale.second.sale
                     )
-                }
-            },
-            selected = selected,
-            onDismissRequest = { showCategories = false })
-    }
+                    else data.second.sales.plus(sale.second.sale)).let {
+                        onStateChange(data.mapSecond {
+                            copy(
+                                sales = it
+                            )
+                        })
+                    }
+                },
+                selected = selected,
+                onDelete = {},
+                onDismissRequest = { showSales = false })
+        }
 
-    Column(modifier) {
-        Supplier(state = state.supplier, onStateChange = { onStateChange(state.copy()) })
-        SelectableRoomTextField(value = sales.joinToString { ", " }) { showSales = true }
-        SelectableRoomTextField(value = cities.joinToString { ", " }) { showCities = true }
-        SelectableRoomTextField(value = products.joinToString { ", " }) { showProducts = true }
-        SelectableRoomTextField(value = categories.joinToString { ", " }) { showCategories = true }
+
+        var showCities by remember { mutableStateOf(value = false) }
+
+        if (showCities) {
+            val selected =
+                remember(data.second.cities) { data.second.cities.mapTo(mutableSetOf()) { it.id } }
+            CitiesListSheet(
+                state = cities,
+                onDelete = { },
+                onSelect = { city ->
+                    (if (data.second.cities.contains(city.second.city)) data.second.cities.minus(
+                        city.second.city
+                    )
+                    else data.second.cities.plus(city.second.city)).let {
+                        onStateChange(data.mapSecond {
+                            copy(
+                                cities = it
+                            )
+                        })
+                    }
+                },
+                selected = selected,
+                onDismissRequest = { showCities = false })
+        }
+
+
+        var showProducts by remember { mutableStateOf(value = false) }
+
+        if (showProducts) {
+            val selected =
+                remember(data.second.products) { data.second.products.mapTo(mutableSetOf()) { it.id } }
+            ProductListSheet(
+                state = products,
+                onSelect = { product ->
+                    (if (data.second.products.contains(product.product)) data.second.products.minus(
+                        product.product
+                    )
+                    else data.second.products.plus(product.product)).let {
+                        onStateChange(data.mapSecond { copy(products = it) })
+                    }
+                },
+                selected = selected,
+                onDismissRequest = { showProducts = false })
+        }
+
+
+        var showCategories by remember { mutableStateOf(value = false) }
+
+        if (showCategories) {
+            val selected =
+                remember(data.second.categories) { data.second.categories.mapTo(mutableSetOf()) { it.id } }
+            CategoryListSheet(
+                state = categories,
+                onSelect = { category ->
+                    (if (data.second.categories.contains(category.second.category)) data.second.categories.minus(
+                        category.second.category
+                    )
+                    else data.second.categories.plus(category.second.category)).let {
+                        onStateChange(
+                            data.mapSecond { copy(categories = it) })
+                    }
+                },
+                onDelete = {},
+                selected = selected,
+                onDismissRequest = { showCategories = false })
+        }
+
+        Column(modifier) {
+            Supplier(state = data.second.supplier, onStateChange = { onStateChange(data.mapSecond { copy(supplier = it) }) })
+            RoomDivider()
+//        SelectableRoomTextField(value = sales.joinToString { ", " }) { showSales = true }
+//        SelectableRoomTextField(value = cities.joinToString { ", " }) { showCities = true }
+            SelectableRoomTextField(value = products.joinToString { ", " }) { showProducts = true }
+//        SelectableRoomTextField(value = categories.joinToString { ", " }) { showCategories = true }
+        }
     }
 }

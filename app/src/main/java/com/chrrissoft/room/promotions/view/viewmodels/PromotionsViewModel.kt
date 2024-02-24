@@ -8,6 +8,7 @@ import com.chrrissoft.room.promotions.db.usecases.DeletePromotionsUseCase
 import com.chrrissoft.room.promotions.db.usecases.GetPromotionsUseCase
 import com.chrrissoft.room.promotions.db.usecases.SavePromotionsUseCase
 import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnChange
+import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnChangePage
 import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnCreate
 import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnDelete
 import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnOpen
@@ -16,10 +17,12 @@ import com.chrrissoft.room.promotions.view.states.PromotionsState
 import com.chrrissoft.room.promotions.view.viewmodels.PromotionsViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
+import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -36,12 +39,15 @@ class PromotionsViewModel @Inject constructor(
     override val _state = MutableStateFlow(PromotionsState())
     override val stateFlow = _state.asStateFlow()
 
+    private var listJob: Job? = null
+    private var detailJob: Job? = null
+
     init {
         loadPromotions()
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = loadPromotion(event.data)
+        fun onEvent(event: OnOpen) = openPromotion(event.data)
 
         fun onEvent(event: OnSave) = savePromotions(mapOf(event.data))
 
@@ -50,18 +56,20 @@ class PromotionsViewModel @Inject constructor(
         fun onEvent(event: OnChange) = updateState(promotion = Success(event.data))
 
         fun onEvent(event: OnDelete) = deletePromotions(event.data.mapValues { it.value.promotion })
+        fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
 
     private fun create(data: Pair<String, PromotionWithRelationship>) {
+        detailJob?.cancel()
         (state.promotion as? Success)?.data?.let { savePromotions(mapOf(it)) }
-        updateState(promotion = Success(data))
+        updateState(promotion = Success(data), page = Page.DETAIL)
     }
 
 
     private fun savePromotions(data: Map<String, PromotionWithRelationship>) {
         updateState(state.promotions.map { it + data })
-        savePromotions(data) { updateState() }
+        savePromotions(data) {  }
     }
 
     private fun savePromotions(
@@ -85,22 +93,35 @@ class PromotionsViewModel @Inject constructor(
 
     private fun collectPromotions(
         block: suspend CoroutineScope.(ResState<Map<String, PromotionWithRelationship>>) -> Unit
-    ) = scope.launch { GetPromotionsUseCase().collect { block(it) } }
+    ) {
+        listJob?.cancel()
+        listJob = scope.launch { GetPromotionsUseCase().collect { block(it) } }
+    }
 
+
+    private fun openPromotion(id: String) {
+        (state.promotion as? Success)?.data?.let { savePromotions(mapOf(it)) }
+        updateState(page = Page.DETAIL)
+        loadPromotion(id)
+    }
 
     private fun loadPromotion(id: String) = collectPromotion(id) { updateState(promotion = it) }
 
     private fun collectPromotion(
         id: String,
         block: suspend CoroutineScope.(ResState<Pair<String, PromotionWithRelationship>>) -> Unit
-    ) = scope.launch { GetPromotionsUseCase(id).collect { block(it) } }
+    ) {
+        detailJob?.cancel()
+        detailJob = scope.launch { GetPromotionsUseCase(id).collect { block(it) } }
+    }
 
 
     private fun updateState(
         promotions: ResState<Map<String, PromotionWithRelationship>> = state.promotions,
         promotion: ResState<Pair<String, PromotionWithRelationship>> = state.promotion,
+        page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(promotion = promotion, promotions = promotions, snackbar = snackbar) }
+        _state.update { it.copy(promotion = promotion, promotions = promotions, page = page, snackbar = snackbar) }
     }
 }

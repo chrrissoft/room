@@ -7,7 +7,9 @@ import com.chrrissoft.room.sales.db.objects.SaleWithRelationship
 import com.chrrissoft.room.sales.db.usecases.DeleteSalesUseCase
 import com.chrrissoft.room.sales.db.usecases.GetSalesUseCase
 import com.chrrissoft.room.sales.db.usecases.SaveSalesUseCase
+import com.chrrissoft.room.sales.view.events.SalesEvent
 import com.chrrissoft.room.sales.view.events.SalesEvent.OnChange
+import com.chrrissoft.room.sales.view.events.SalesEvent.OnChangePage
 import com.chrrissoft.room.sales.view.events.SalesEvent.OnCreate
 import com.chrrissoft.room.sales.view.events.SalesEvent.OnDelete
 import com.chrrissoft.room.sales.view.events.SalesEvent.OnOpen
@@ -16,6 +18,7 @@ import com.chrrissoft.room.sales.view.states.SalesState
 import com.chrrissoft.room.sales.view.viewmodels.SalesViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
+import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +44,7 @@ class SalesViewModel @Inject constructor(
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = loadSale(event.data)
+        fun onEvent(event: OnOpen) = openSale(event.data)
 
         fun onEvent(event: OnSave) = saveSales(mapOf(event.data))
 
@@ -50,12 +53,14 @@ class SalesViewModel @Inject constructor(
         fun onEvent(event: OnChange) = updateState(sale = Success(event.data))
 
         fun onEvent(event: OnDelete) = deleteSales(event.data.mapValues { it.value.sale })
+
+        fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
 
     private fun create(data: Pair<String, SaleWithRelationship>) {
         (state.sale as? Success)?.data?.let { saveSales(mapOf(it)) }
-        updateState(sale = Success(data))
+        updateState(sale = Success(data), page = Page.DETAIL)
     }
 
 
@@ -88,6 +93,11 @@ class SalesViewModel @Inject constructor(
     ) = scope.launch { GetSalesUseCase().collect { block(it) } }
 
 
+    private fun openSale(id: String) {
+        updateState(page = Page.DETAIL)
+        loadSale(id)
+    }
+
     private fun loadSale(id: String) = collectSale(id) { updateState(sale = it) }
 
     private fun collectSale(
@@ -99,8 +109,9 @@ class SalesViewModel @Inject constructor(
     private fun updateState(
         sales: ResState<Map<String, SaleWithRelationship>> = state.sales,
         sale: ResState<Pair<String, SaleWithRelationship>> = state.sale,
+        page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(sale = sale, sales = sales, snackbar = snackbar) }
+        _state.update { it.copy(sale = sale, sales = sales, page = page, snackbar = snackbar) }
     }
 }

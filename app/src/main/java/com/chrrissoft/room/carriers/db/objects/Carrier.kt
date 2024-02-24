@@ -20,6 +20,10 @@ import com.chrrissoft.room.shared.db.PersonName
 data class Carrier(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
-    @ColumnInfo(name = "city_id") val cityId: String,
-    @Embedded val name: PersonName,
-)
+    @ColumnInfo(name = "city_id") val cityId: String = "",
+    @Embedded val name: PersonName = PersonName(),
+) {
+    companion object {
+        val invalid = Carrier("")
+    }
+}

@@ -1,6 +1,7 @@
 package com.chrrissoft.room.shipments.view.events
 
 import com.chrrissoft.room.base.view.event.BaseEvent
+import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.shipments.db.objects.ShippingWithRelationship
 import com.chrrissoft.room.shipments.view.viewmodels.ShipmentsViewModel.EventHandler
 
@@ -12,6 +13,7 @@ sealed interface ShipmentsEvent : BaseEvent<EventHandler> {
             is OnCreate -> handler.onEvent(event = this)
             is OnChange -> handler.onEvent(event = this)
             is OnDelete -> handler.onEvent(event = this)
+            is OnChangePage -> handler.onEvent(event = this)
         }
     }
 
@@ -26,4 +28,6 @@ sealed interface ShipmentsEvent : BaseEvent<EventHandler> {
     data class OnDelete(val data: Map<String, ShippingWithRelationship>) : ShipmentsEvent {
         constructor(data: Pair<String, ShippingWithRelationship>) : this(mapOf(data))
     }
+
+    class OnChangePage(val data: Page) : ShipmentsEvent
 }

@@ -18,6 +18,10 @@ import com.chrrissoft.room.shared.db.PersonName
 data class Seller(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
-    @Embedded val name: PersonName,
-    @ColumnInfo(name = "city_id") val cityId: String,
-)
+    @Embedded val name: PersonName = PersonName(),
+    @ColumnInfo(name = "city_id") val cityId: String = "",
+) {
+    companion object {
+        val invalid = Seller("")
+    }
+}

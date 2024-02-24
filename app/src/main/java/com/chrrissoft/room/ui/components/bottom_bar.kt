@@ -1,12 +1,12 @@
 package com.chrrissoft.room.ui.components
 
-/*
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import com.chrrissoft.room.ui.entities.Page
 import com.chrrissoft.room.ui.theme.navigationBarItemColors
 
@@ -26,9 +26,8 @@ fun <P : Page> PagesBottomBar(
                 onClick = { onChangePage(it) },
                 colors = navigationBarItemColors,
                 icon = { Icon(it.icon, (null)) },
-                label = { Text(text = it.label) },
+                label = { Text(text = stringResource(it.label)) },
             )
         }
     }
 }
-*/

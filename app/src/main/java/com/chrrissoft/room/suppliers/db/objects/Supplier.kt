@@ -10,6 +10,6 @@ import com.chrrissoft.room.common.Direction
 data class Supplier(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
-    @ColumnInfo(name = "name") val name: String,
-    @Embedded val direction: Direction
+    @ColumnInfo(name = "name") val name: String = "",
+    @Embedded val direction: Direction = Direction()
 )

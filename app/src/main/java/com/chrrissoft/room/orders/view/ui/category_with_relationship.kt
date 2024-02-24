@@ -9,76 +9,42 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.chrrissoft.room.cities.db.objects.CityWithRelationship
 import com.chrrissoft.room.cities.view.ui.CitiesListSheet
-import com.chrrissoft.room.costumers.db.objects.CostumerWithRelationship
-import com.chrrissoft.room.costumers.view.ui.CostumerListSheet
 import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
-import com.chrrissoft.room.sellers.db.objects.SellerWithRelationship
-import com.chrrissoft.room.sellers.view.ui.SellerListSheet
-import com.chrrissoft.room.shipments.db.objects.ShippingWithRelationship
-import com.chrrissoft.room.shipments.view.ui.ShippingListSheet
+import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.view.ResState
+import com.chrrissoft.room.ui.components.RoomDivider
 import com.chrrissoft.room.ui.components.SelectableRoomTextField
+import com.chrrissoft.room.utils.PairUtils.mapSecond
 
 @Composable
 fun OrderWithRelationship(
-    state: OrderWithRelationship,
-    onStateChange: (OrderWithRelationship) -> Unit,
-    cities: List<CityWithRelationship>,
-    sellers: List<SellerWithRelationship>,
-    costumers: List<CostumerWithRelationship>,
-    shipments: List<ShippingWithRelationship>,
+    state: ResState<Pair<String, OrderWithRelationship>>,
+    onStateChange: (Pair<String, OrderWithRelationship>) -> Unit,
+    cities: ResState<Map<String, CityWithRelationship>>,
     modifier: Modifier = Modifier,
 ) {
-    var showCities by remember { mutableStateOf(value = false) }
+    ResState(state = state) { pair ->
+        var showCities by remember { mutableStateOf(value = false) }
 
-    if (showCities) {
-        CitiesListSheet(
-            state = cities,
-            selected = setOf(state.city.id),
-            onSelect = { onStateChange(state.copy(city = it.city)) },
-            onDismissRequest = { showCities = false })
-    }
-
-
-    var showSellers by remember { mutableStateOf(value = false) }
-
-    if (showSellers) {
-        SellerListSheet(
-            state = sellers,
-            selected = setOf(state.seller.id),
-            onSelect = { onStateChange(state.copy(seller = it.seller)) },
-            onDismissRequest = { showSellers = false })
-    }
+        if (showCities) {
+            CitiesListSheet(
+                state = cities,
+                selected = setOf(pair.second.city.id),
+                onDelete = { },
+                onSelect = { onStateChange(pair.mapSecond { copy(city = it.second.city)}) },
+                onDismissRequest = { showCities = false })
+        }
 
 
-    var showCostumers by remember { mutableStateOf(value = false) }
-
-    if (showCostumers) {
-        CostumerListSheet(
-            state = costumers,
-            selected = setOf(state.costumer.id),
-            onSelect = { onStateChange(state.copy(costumer = it.costumer)) },
-            onDismissRequest = { showCostumers = false })
-    }
-
-    var showShipments by remember { mutableStateOf(value = false) }
-
-    if (showShipments) {
-        ShippingListSheet(
-            state = shipments,
-            selected = setOf(state.costumer.id),
-            onSelect = { onStateChange(state.copy(shipping = it.shipping)) },
-            onDismissRequest = { showShipments = false })
-    }
-
-
-    Column(modifier) {
-        Order(
-            state = state.order,
-            onStateChange = { onStateChange(state.copy(order = it)) })
-
-        SelectableRoomTextField(value = state.city.name, onClick = {})
-        SelectableRoomTextField(value = state.seller.name.firstName, onClick = {})
-        SelectableRoomTextField(value = state.costumer.name.firstName, onClick = {})
-        SelectableRoomTextField(value = state.shipping.state.name, onClick = {})
+        Column(modifier) {
+            Order(
+                state = pair.second.order,
+                onStateChange = { onStateChange(pair.mapSecond { copy(order = it)}) })
+            RoomDivider()
+            SelectableRoomTextField(value = pair.second.city.name, onClick = {})
+//        SelectableRoomTextField(value = state.sale.seller.name.firstName, onClick = {})
+//        SelectableRoomTextField(value = state.sale.costumer.name.firstName, onClick = {})
+            SelectableRoomTextField(value = pair.second.shipping.state.name, onClick = {})
+        }
     }
 }

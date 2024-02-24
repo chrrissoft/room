@@ -10,36 +10,56 @@ import androidx.compose.ui.Modifier
 import com.chrrissoft.room.promotions.db.objects.PromotionWithRelationship
 import com.chrrissoft.room.sales.db.objects.SaleWithRelationship
 import com.chrrissoft.room.sales.view.ui.SaleListSheet
+import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.view.ResState
+import com.chrrissoft.room.ui.components.RoomDivider
 import com.chrrissoft.room.ui.components.SelectableRoomTextField
+import com.chrrissoft.room.utils.PairUtils.mapSecond
 
 @Composable
 fun PromotionWithRelationship(
-    state: PromotionWithRelationship,
-    onStateChange: (PromotionWithRelationship) -> Unit,
-    sellers: List<SaleWithRelationship>,
+    state: ResState<Pair<String, PromotionWithRelationship>>,
+    onStateChange: (Pair<String, PromotionWithRelationship>) -> Unit,
+    sales: ResState<Map<String, SaleWithRelationship>>,
     modifier: Modifier = Modifier,
 ) {
-    var showSales by remember { mutableStateOf(value = false) }
+    ResState(state = state) { data ->
 
-    if (showSales) {
-        val selected = remember(state.sales) {
-            state.sales.mapTo(mutableSetOf()) { it.id }
+        var showSales by remember { mutableStateOf(value = false) }
+
+        if (showSales) {
+            val selected = remember(data.second.sales) {
+                data.second.sales.mapTo(mutableSetOf()) { it.id }
+            }
+            SaleListSheet(
+                state = sales,
+                selected = selected,
+                onSelect = { sale ->
+                    (if (data.second.sales.contains(sale.second.sale)) data.second.sales.minus(
+                        sale.second.sale
+                    )
+                    else data.second.sales.plus(sale.second.sale)).let {
+                        onStateChange(data.mapSecond {
+                            copy(
+                                sales = it
+                            )
+                        })
+                    }
+                },
+                onDelete = {},
+                onDismissRequest = { showSales = false })
         }
-        SaleListSheet(
-            state = sellers,
-            selected = selected,
-            onSelect = { sale ->
-                (if (state.sales.contains(sale.sale)) state.sales.minus(sale.sale)
-                else state.sales.plus(sale.sale)).let { onStateChange(state.copy(sales = it)) }
-            },
-            onDismissRequest = { showSales = false })
-    }
 
 
-    Column(modifier) {
-        Promotion(
-            state = state.promotion,
-            onStateChange = { onStateChange(state.copy(promotion = it)) })
-        SelectableRoomTextField(value = state.sales.joinToString { "," }) { showSales = true }
+        Column(modifier) {
+            Promotion(
+                state = data.second.promotion,
+                onStateChange = { onStateChange(data.mapSecond { copy(promotion = it) }) })
+            RoomDivider()
+            SelectableRoomTextField(
+                onClick = { showSales = true },
+                value = data.second.sales.joinToString { "," },
+            )
+        }
     }
 }

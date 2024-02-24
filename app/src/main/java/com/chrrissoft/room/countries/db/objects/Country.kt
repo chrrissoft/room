@@ -8,5 +8,9 @@ import androidx.room.PrimaryKey
 data class Country(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
-    @ColumnInfo(name = "name") val name: String,
-)
+    @ColumnInfo(name = "name") val name: String = "",
+) {
+    companion object {
+        val invalid = Country("", "")
+    }
+}

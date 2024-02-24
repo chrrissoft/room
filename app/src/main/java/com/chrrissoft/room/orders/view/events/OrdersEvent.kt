@@ -3,6 +3,7 @@ package com.chrrissoft.room.orders.view.events
 import com.chrrissoft.room.base.view.event.BaseEvent
 import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
 import com.chrrissoft.room.orders.view.viewmodels.OrdersViewModel.EventHandler
+import com.chrrissoft.room.shared.view.Page
 
 sealed interface OrdersEvent : BaseEvent<EventHandler> {
     override fun resolve(handler: EventHandler) {
@@ -12,6 +13,7 @@ sealed interface OrdersEvent : BaseEvent<EventHandler> {
             is OnCreate -> handler.onEvent(event = this)
             is OnChange -> handler.onEvent(event = this)
             is OnDelete -> handler.onEvent(event = this)
+            is OnChangePage -> handler.onEvent(event = this)
         }
     }
 
@@ -26,4 +28,6 @@ sealed interface OrdersEvent : BaseEvent<EventHandler> {
     data class OnDelete(val data: Map<String, OrderWithRelationship>) : OrdersEvent {
         constructor(data: Pair<String, OrderWithRelationship>) : this(mapOf(data))
     }
+
+    class OnChangePage(val data: Page) : OrdersEvent
 }

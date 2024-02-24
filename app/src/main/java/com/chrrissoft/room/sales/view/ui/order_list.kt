@@ -1,21 +1,20 @@
 package com.chrrissoft.room.sales.view.ui
 
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.chrrissoft.room.sales.db.objects.SaleWithRelationship
+import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.view.ResStateMap
 
 @Composable
 fun SaleList(
-    state: List<SaleWithRelationship>,
-    onSelect: (SaleWithRelationship) -> Unit,
+    state: ResState<Map<String, SaleWithRelationship>>,
+    onSelect: (Pair<String, SaleWithRelationship>) -> Unit,
+    onDelete: (Map<String, SaleWithRelationship>) -> Unit,
     selected: Set<String>,
     modifier: Modifier = Modifier,
 ) {
-    LazyColumn(modifier) {
-        items(state) {
+    ResStateMap(state = state, modifier) {
 
-        }
     }
 }

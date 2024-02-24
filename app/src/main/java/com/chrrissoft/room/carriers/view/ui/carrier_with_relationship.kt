@@ -10,36 +10,36 @@ import androidx.compose.ui.Modifier
 import com.chrrissoft.room.carriers.db.objects.CarrierWithRelationship
 import com.chrrissoft.room.cities.db.objects.CityWithRelationship
 import com.chrrissoft.room.cities.view.ui.CitiesListSheet
-import com.chrrissoft.room.ui.components.SelectableRoomTextField
+import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.view.ResState
+import com.chrrissoft.room.utils.PairUtils.mapSecond
 
 @Composable
 fun CarrierWithRelationship(
-    state: CarrierWithRelationship,
-    onStateChange: (CarrierWithRelationship) -> Unit,
-    cities: List<CityWithRelationship>,
+    state: ResState<Pair<String,CarrierWithRelationship>>,
+    onStateChange: (Pair<String,CarrierWithRelationship>) -> Unit,
+    cities: ResState<Map<String, CityWithRelationship>>,
     modifier: Modifier = Modifier,
 ) {
     var showCities by remember { mutableStateOf(value = false) }
 
-    if (showCities) {
-        CitiesListSheet(
-            state = cities,
-            selected = setOf(state.city.id),
-            onSelect = { onStateChange(state.copy(city = it.city)) },
-            onDismissRequest = { showCities = false },
-        )
-    }
+    ResState(state = state) { success ->
+        if (showCities) {
+            CitiesListSheet(
+                state = cities,
+                onDelete = {  },
+                selected = setOf(success.second.city.id),
+                onSelect = { onStateChange(success.mapSecond { copy(city = it.second.city)}) },
+                onDismissRequest = { showCities = false },
+            )
+        }
 
 
-    Column(modifier) {
-        Carrier(
-            state = state.carrier,
-            onStateChange = { onStateChange(state.copy(carrier = it)) }
-        )
-        SelectableRoomTextField(
-            value = state.city.name,
-            label = "City",
-            onClick = { showCities = true },
-        )
+        Column(modifier) {
+            Carrier(
+                state = success.second.carrier,
+                onStateChange = { change -> onStateChange(success.mapSecond { copy(carrier = change)}) }
+            )
+        }
     }
 }

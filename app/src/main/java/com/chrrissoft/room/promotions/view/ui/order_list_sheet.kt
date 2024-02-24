@@ -4,20 +4,22 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.chrrissoft.room.promotions.db.objects.PromotionWithRelationship
+import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.ui.components.MyModalBottomSheet
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PromotionListSheet(
-    state: List<PromotionWithRelationship>,
-    onSelect: (PromotionWithRelationship) -> Unit,
+    state: ResState<Map<String, PromotionWithRelationship>>,
+    onSelect: (Pair<String, PromotionWithRelationship>) -> Unit,
+    onDelete: (Map<String, PromotionWithRelationship>) -> Unit,
     selected: Set<String>,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     MyModalBottomSheet(
         onDismissRequest = onDismissRequest,
-        content = { PromotionList(state = state, onSelect = onSelect, selected = selected) },
+        content = { PromotionList(state, onSelect, onDelete, selected, modifier) },
         modifier = modifier
     )
 }

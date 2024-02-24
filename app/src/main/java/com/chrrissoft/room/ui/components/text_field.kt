@@ -3,6 +3,7 @@ package com.chrrissoft.room.ui.components
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.LocalTextStyle
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.dp
 import com.chrrissoft.room.ui.theme.textFieldColors
 
 @Composable
@@ -46,9 +48,7 @@ fun SelectableRoomTextField(
         value = value,
         onValueChange = {},
         textStyle = textStyle,
-        label = if (label == null) null else {
-            { Text(text = label) }
-        },
+        label = label,
         placeholder = placeholder,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
@@ -78,7 +78,7 @@ fun RoomTextField(
     enabled: Boolean = true,
     readOnly: Boolean = false,
     textStyle: TextStyle = LocalTextStyle.current,
-    label: @Composable (() -> Unit)? = null,
+    label: String? = null,
     placeholder: @Composable (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -103,7 +103,9 @@ fun RoomTextField(
         enabled = enabled,
         readOnly = readOnly,
         textStyle = textStyle,
-        label = label,
+        label = if (label == null) null else {
+            { Text(text = label) }
+        },
         placeholder = placeholder,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,

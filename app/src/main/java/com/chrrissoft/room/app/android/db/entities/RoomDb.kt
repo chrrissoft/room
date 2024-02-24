@@ -29,18 +29,12 @@ import com.chrrissoft.room.costumers.db.entities.CostumerDao
 import com.chrrissoft.room.costumers.db.objects.Costumer
 import com.chrrissoft.room.countries.db.entities.CountryDao
 import com.chrrissoft.room.countries.db.objects.Country
-import com.chrrissoft.room.inventories.db.entities.InventoryDao
-import com.chrrissoft.room.inventories.db.objects.Inventory
 import com.chrrissoft.room.orders.db.entities.OrderDao
 import com.chrrissoft.room.orders.db.objects.Order
-import com.chrrissoft.room.payments.db.entities.PaymentDao
-import com.chrrissoft.room.payments.db.objects.Payment
 import com.chrrissoft.room.products.db.entities.ProductDao
 import com.chrrissoft.room.products.db.objects.Product
 import com.chrrissoft.room.promotions.db.entities.PromotionDao
 import com.chrrissoft.room.promotions.db.objects.Promotion
-import com.chrrissoft.room.reviews.db.entities.ReviewDao
-import com.chrrissoft.room.reviews.db.objects.Review
 import com.chrrissoft.room.sales.db.entities.SaleDao
 import com.chrrissoft.room.sales.db.objects.Sale
 import com.chrrissoft.room.sellers.db.entities.SellerDao
@@ -57,12 +51,9 @@ import com.chrrissoft.room.suppliers.db.objects.Supplier
         City::class,
         Costumer::class,
         Country::class,
-        Inventory::class,
         Order::class,
-        Payment::class,
         Product::class,
         Promotion::class,
-        Review::class,
         Sale::class,
         Seller::class,
         Shipping::class,
@@ -85,21 +76,18 @@ import com.chrrissoft.room.suppliers.db.objects.Supplier
         SellersAndShipments::class,
         SupplierAndSales::class,
         SuppliersAndCategories::class,
-
     ],
-    version = 1,
+//    views = [SaleWithRelationship::class],
+    version = 3,
 )
 abstract class RoomDb : RoomDatabase() {
     abstract val supplierDao: SupplierDao
     abstract val shippingDao: ShippingDao
     abstract val sellerDao: SellerDao
     abstract val saleDao: SaleDao
-    abstract val reviewDao: ReviewDao
     abstract val promotionDao: PromotionDao
     abstract val productDao: ProductDao
-    abstract val paymentDao: PaymentDao
     abstract val orderDao: OrderDao
-    abstract val inventoryDao: InventoryDao
     abstract val countryDao: CountryDao
     abstract val costumerDao: CostumerDao
     abstract val citiesDao: CityDao

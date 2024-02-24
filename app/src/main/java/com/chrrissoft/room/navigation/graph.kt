@@ -21,18 +21,12 @@ import com.chrrissoft.room.costumers.view.screens.CostumersScreen
 import com.chrrissoft.room.costumers.view.viewmodels.CostumersViewModel
 import com.chrrissoft.room.countries.view.screens.CountriesScreen
 import com.chrrissoft.room.countries.view.viewmodels.CountriesViewModel
-import com.chrrissoft.room.inventories.view.screens.InventoriesScreen
-import com.chrrissoft.room.inventories.view.viewmodels.InventoriesViewModel
 import com.chrrissoft.room.orders.view.screens.OrdersScreen
 import com.chrrissoft.room.orders.view.viewmodels.OrdersViewModel
-import com.chrrissoft.room.payments.view.screens.PaymentsScreen
-import com.chrrissoft.room.payments.view.viewmodels.PaymentsViewModel
 import com.chrrissoft.room.products.view.screens.ProductsScreen
 import com.chrrissoft.room.products.view.viewmodels.ProductsViewModel
 import com.chrrissoft.room.promotions.view.screens.PromotionsScreen
 import com.chrrissoft.room.promotions.view.viewmodels.PromotionsViewModel
-import com.chrrissoft.room.reviews.view.screens.ReviewsScreen
-import com.chrrissoft.room.reviews.view.viewmodels.ReviewsViewModel
 import com.chrrissoft.room.sales.view.screens.SalesScreen
 import com.chrrissoft.room.sales.view.viewmodels.SalesViewModel
 import com.chrrissoft.room.sellers.view.screens.SellersScreen
@@ -65,12 +59,15 @@ fun RoomGraph() {
             )
         }
     ) {
-        NavHost(navController = controller, startDestination = Screen.Carriers.route) {
+        NavHost(navController = controller, startDestination = Screen.Sales.route) {
             screen(Screen.Carriers) {
                 val viewModel = hiltViewModel<CarriersViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
+                val citiesViewModel = hiltViewModel<CitiesViewModel>()
+                val citiesState by citiesViewModel.stateFlow.collectAsState()
                 CarriersScreen(
                     state = state,
+                    citiesState = citiesState,
                     onEvent = { viewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
@@ -89,18 +86,25 @@ fun RoomGraph() {
             screen(Screen.Cities) {
                 val viewModel = hiltViewModel<CitiesViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
+                val countriesViewModel = hiltViewModel<CountriesViewModel>()
+                val countriesState by countriesViewModel.stateFlow.collectAsState()
                 CitiesScreen(
                     state = state,
+                    countriesState = countriesState,
+                    onCountriesEvent = { countriesViewModel.handleEvent(it) },
                     onEvent = { viewModel.handleEvent(it) },
-                    onOpenDrawer = { drawerState.open(scope) }
+                    onOpenDrawer = { drawerState.open(scope) },
                 )
             }
 
             screen(Screen.Costumers) {
                 val viewModel = hiltViewModel<CostumersViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
+                val citiesViewModel = hiltViewModel<CitiesViewModel>()
+                val citiesState by citiesViewModel.stateFlow.collectAsState()
                 CostumersScreen(
                     state = state,
+                    citiesState = citiesState,
                     onEvent = { viewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
@@ -109,38 +113,25 @@ fun RoomGraph() {
             screen(Screen.Countries) {
                 val viewModel = hiltViewModel<CountriesViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
+                val citiesViewModel = hiltViewModel<CitiesViewModel>()
+                val citiesState by citiesViewModel.stateFlow.collectAsState()
                 CountriesScreen(
                     state = state,
                     onEvent = { viewModel.handleEvent(it) },
-                    onOpenDrawer = { drawerState.open(scope) }
-                )
-            }
-
-            screen(Screen.Inventories) {
-                val viewModel = hiltViewModel<InventoriesViewModel>()
-                val state by viewModel.stateFlow.collectAsState()
-                InventoriesScreen(
-                    state = state,
-                    onEvent = { viewModel.handleEvent(it) },
-                    onOpenDrawer = { drawerState.open(scope) }
+                    citiesState = citiesState,
+                    onCitiesEvent = { citiesViewModel.handleEvent(it) },
+                    onOpenDrawer = { drawerState.open(scope) },
                 )
             }
 
             screen(Screen.Orders) {
                 val viewModel = hiltViewModel<OrdersViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
+                val citiesViewModel = hiltViewModel<CitiesViewModel>()
+                val citiesState by citiesViewModel.stateFlow.collectAsState()
                 OrdersScreen(
                     state = state,
-                    onEvent = { viewModel.handleEvent(it) },
-                    onOpenDrawer = { drawerState.open(scope) }
-                )
-            }
-
-            screen(Screen.Payments) {
-                val viewModel = hiltViewModel<PaymentsViewModel>()
-                val state by viewModel.stateFlow.collectAsState()
-                PaymentsScreen(
-                    state = state,
+                    citiesState = citiesState,
                     onEvent = { viewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
@@ -159,18 +150,11 @@ fun RoomGraph() {
             screen(Screen.Promotions) {
                 val viewModel = hiltViewModel<PromotionsViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
+                val salesViewModel = hiltViewModel<SalesViewModel>()
+                val salesState by salesViewModel.stateFlow.collectAsState()
                 PromotionsScreen(
                     state = state,
-                    onEvent = { viewModel.handleEvent(it) },
-                    onOpenDrawer = { drawerState.open(scope) }
-                )
-            }
-
-            screen(Screen.Reviews) {
-                val viewModel = hiltViewModel<ReviewsViewModel>()
-                val state by viewModel.stateFlow.collectAsState()
-                ReviewsScreen(
-                    state = state,
+                    salesState = salesState,
                     onEvent = { viewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
@@ -179,8 +163,17 @@ fun RoomGraph() {
             screen(Screen.Sales) {
                 val viewModel = hiltViewModel<SalesViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
+                val costumersViewModel = hiltViewModel<CostumersViewModel>()
+                val costumersState by costumersViewModel.stateFlow.collectAsState()
+                val sellersViewModel = hiltViewModel<SellersViewModel>()
+                val sellersState by sellersViewModel.stateFlow.collectAsState()
+                val ordersViewModel = hiltViewModel<OrdersViewModel>()
+                val ordersState by ordersViewModel.stateFlow.collectAsState()
                 SalesScreen(
                     state = state,
+                    costumersState = costumersState,
+                    sellersState = sellersState,
+                    ordersState = ordersState,
                     onEvent = { viewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
@@ -189,8 +182,11 @@ fun RoomGraph() {
             screen(Screen.Sellers) {
                 val viewModel = hiltViewModel<SellersViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
+                val citiesViewModel = hiltViewModel<CitiesViewModel>()
+                val citiesState by citiesViewModel.stateFlow.collectAsState()
                 SellersScreen(
                     state = state,
+                    citiesState = citiesState,
                     onEvent = { viewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )

@@ -19,23 +19,23 @@ data class SupplierWithRelationship(
         entityColumn = "id",
         associateBy = Junction(CitiesAndSuppliers::class, ("supplier_id"), ("city_id"))
     )
-    val cities: List<City>,
+    val cities: List<City> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(ProductsAndSuppliers::class, ("supplier_id"), ("product_id"))
     )
-    val products: List<Product>,
+    val products: List<Product> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(SupplierAndSales::class, ("supplier_id"), ("sale_id"))
     )
-    val sales: List<Sale>,
+    val sales: List<Sale> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(SuppliersAndCategories::class, ("supplier_id"), ("category_id"))
     )
-    val categories: List<Category>,
+    val categories: List<Category> = emptyList(),
 )

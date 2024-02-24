@@ -19,23 +19,23 @@ data class CategoryWithRelationship(
         entityColumn = "id",
         associateBy = Junction(CategoriesAndOrders::class, ("category_id"), ("order_id"))
     )
-    val orders: List<Order>,
+    val orders: List<Order> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(CategoriesAndPromotions::class, ("category_id"), ("promotion_id"))
     )
-    val promotions: List<Promotion>,
+    val promotions: List<Promotion> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(CategoriesAndSales::class, ("category_id"), ("sale_id"))
     )
-    val sales: List<Sale>,
+    val sales: List<Sale> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(SuppliersAndCategories::class, ("category_id"), ("supplier_id"))
     )
-    val suppliers: List<Supplier>
+    val suppliers: List<Supplier> = emptyList()
 )

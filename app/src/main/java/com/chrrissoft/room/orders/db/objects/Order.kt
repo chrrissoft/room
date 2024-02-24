@@ -39,7 +39,11 @@ import com.chrrissoft.room.shipments.db.objects.Shipping
 data class Order(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
-    @Embedded val direction: Direction,
-    @ColumnInfo(name = "city_id") val cityId: String,
-    @ColumnInfo(name = "shipping_id") val shippingId: String,
-)
+    @Embedded val direction: Direction = Direction(),
+    @ColumnInfo(name = "city_id") val cityId: String = "",
+    @ColumnInfo(name = "shipping_id") val shippingId: String = "",
+) {
+    companion object {
+        val invalid = Order("")
+    }
+}

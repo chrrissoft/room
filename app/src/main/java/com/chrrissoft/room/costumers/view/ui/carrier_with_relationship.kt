@@ -10,36 +10,44 @@ import androidx.compose.ui.Modifier
 import com.chrrissoft.room.costumers.db.objects.CostumerWithRelationship
 import com.chrrissoft.room.cities.db.objects.CityWithRelationship
 import com.chrrissoft.room.cities.view.ui.CitiesListSheet
+import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.view.ResState
 import com.chrrissoft.room.ui.components.SelectableRoomTextField
+import com.chrrissoft.room.utils.PairUtils.mapSecond
 
 @Composable
 fun CostumerWithRelationship(
-    state: CostumerWithRelationship,
-    onStateChange: (CostumerWithRelationship) -> Unit,
-    cities: List<CityWithRelationship>,
+    state: ResState<Pair<String, CostumerWithRelationship>>,
+    onStateChange: (Pair<String, CostumerWithRelationship>) -> Unit,
+    cities: ResState<Map<String, CityWithRelationship>>,
     modifier: Modifier = Modifier,
 ) {
-    var showCities by remember { mutableStateOf(value = false) }
+    ResState(state = state) {
+        val data = remember(it.second) { it.second }
 
-    if (showCities) {
-        CitiesListSheet(
-            state = cities,
-            selected = setOf(state.city.id),
-            onSelect = { onStateChange(state.copy(city = it.city)) },
-            onDismissRequest = { showCities = false },
-        )
-    }
+        var showCities by remember { mutableStateOf(value = false) }
+
+        if (showCities) {
+            CitiesListSheet(
+                state = cities,
+                onDelete = { },
+                selected = setOf(data.city.id),
+                onSelect = { change -> onStateChange(it.mapSecond { copy(city = change.second.city) }) },
+                onDismissRequest = { showCities = false },
+            )
+        }
 
 
-    Column(modifier) {
-        Costumer(
-            state = state.costumer,
-            onStateChange = { onStateChange(state.copy(costumer = it)) }
-        )
-        SelectableRoomTextField(
-            value = state.city.name,
-            label = "City",
-            onClick = { showCities = true },
-        )
+        Column(modifier) {
+            Costumer(
+                state = data.costumer,
+                onStateChange = { change -> onStateChange(it.mapSecond { copy(costumer = change) }) }
+            )
+            SelectableRoomTextField(
+                value = data.city.name,
+                label = "City",
+                onClick = { showCities = true },
+            )
+        }
     }
 }

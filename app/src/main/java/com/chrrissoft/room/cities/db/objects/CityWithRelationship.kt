@@ -16,25 +16,25 @@ import com.chrrissoft.room.suppliers.db.objects.Supplier
 data class CityWithRelationship(
     @Embedded val city: City,
     @Relation(parentColumn = "country_id", entityColumn = "id")
-    val country: Country,
+    val country: Country = Country.invalid,
     @Relation(parentColumn = "id", entityColumn = "city_id")
-    val carriers: List<Carrier>,
-    @Relation(parentColumn = "id", entityColumn = "costumer_id")
-    val costumers: List<Costumer>,
-    @Relation(parentColumn = "id", entityColumn = "order_id")
-    val orders: List<Order>,
-    @Relation(parentColumn = "id", entityColumn = "seller_id")
-    val sellers: List<Seller>,
+    val carriers: List<Carrier> = emptyList(),
+    @Relation(parentColumn = "id", entityColumn = "city_id")
+    val costumers: List<Costumer> = emptyList(),
+    @Relation(parentColumn = "id", entityColumn = "city_id")
+    val orders: List<Order> = emptyList(),
+    @Relation(parentColumn = "id", entityColumn = "city_id")
+    val sellers: List<Seller> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(CitiesAndShipments::class, ("city_id"), ("shipping_id"))
     )
-    val shipments: List<Shipping>,
+    val shipments: List<Shipping> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(CitiesAndSuppliers::class, ("city_id"), ("suppliers_id"))
+        associateBy = Junction(CitiesAndSuppliers::class, ("city_id"), ("supplier_id"))
     )
-    val suppliers: List<Supplier>,
+    val suppliers: List<Supplier> = emptyList(),
 )

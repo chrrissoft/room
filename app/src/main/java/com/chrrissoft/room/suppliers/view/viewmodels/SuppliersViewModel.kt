@@ -16,6 +16,8 @@ import com.chrrissoft.room.suppliers.view.states.SuppliersState
 import com.chrrissoft.room.suppliers.view.viewmodels.SuppliersViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
+import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.suppliers.view.events.SuppliersEvent
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,7 +43,7 @@ class SuppliersViewModel @Inject constructor(
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = loadSupplier(event.data)
+        fun onEvent(event: OnOpen) = openSupplier(event.data)
 
         fun onEvent(event: OnSave) = saveSuppliers(mapOf(event.data))
 
@@ -50,12 +52,13 @@ class SuppliersViewModel @Inject constructor(
         fun onEvent(event: OnChange) = updateState(supplier = Success(event.data))
 
         fun onEvent(event: OnDelete) = deleteSuppliers(event.data.mapValues { it.value.supplier })
+        fun onEvent(event: SuppliersEvent.OnChangePage) = updateState(page = event.data)
     }
 
 
     private fun create(data: Pair<String, SupplierWithRelationship>) {
         (state.supplier as? Success)?.data?.let { saveSuppliers(mapOf(it)) }
-        updateState(supplier = Success(data))
+        updateState(supplier = Success(data), page = Page.DETAIL)
     }
 
 
@@ -88,6 +91,11 @@ class SuppliersViewModel @Inject constructor(
     ) = scope.launch { GetSuppliersUseCase().collect { block(it) } }
 
 
+    private fun openSupplier(id: String) {
+        updateState(page = Page.DETAIL)
+        loadSupplier(id)
+    }
+
     private fun loadSupplier(id: String) = collectSupplier(id) { updateState(supplier = it) }
 
     private fun collectSupplier(
@@ -99,8 +107,9 @@ class SuppliersViewModel @Inject constructor(
     private fun updateState(
         suppliers: ResState<Map<String, SupplierWithRelationship>> = state.suppliers,
         supplier: ResState<Pair<String, SupplierWithRelationship>> = state.supplier,
+        page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(supplier = supplier, suppliers = suppliers, snackbar = snackbar) }
+        _state.update { it.copy(supplier = supplier, suppliers = suppliers, page = page, snackbar = snackbar) }
     }
 }

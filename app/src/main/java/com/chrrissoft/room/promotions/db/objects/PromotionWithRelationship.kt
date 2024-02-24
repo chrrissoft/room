@@ -14,23 +14,23 @@ import com.chrrissoft.room.sales.db.objects.Sale
 data class PromotionWithRelationship(
     @Embedded val promotion: Promotion,
     @Relation(parentColumn = "id", entityColumn = "promotion_id")
-    val products: List<Product>,
+    val products: List<Product> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(SalesAndPromotions::class, ("promotion_id"), ("sale_id"))
         )
-    val sales: List<Sale>,
+    val sales: List<Sale> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(PromotionsAndOrders::class, ("promotion_id"), ("order_id"))
         )
-    val orders: List<Order>,
+    val orders: List<Order> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(CategoriesAndPromotions::class, ("promotion_id"), ("category_id"))
         )
-    val categories: List<Category>,
+    val categories: List<Category> = emptyList(),
 )
