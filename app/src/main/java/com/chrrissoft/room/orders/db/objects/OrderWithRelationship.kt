@@ -12,5 +12,5 @@ data class OrderWithRelationship(
     @Relation(parentColumn = "shipping_id", entityColumn = "id")
     val shipping: Shipping = Shipping.invalid,
 //    @Relation(parentColumn = "id", entityColumn = "id")
-//    val sale: SaleWithRelationship,
+//    val sale: SaleWithRelationship = SaleWithRelationship(Sale("")),
 )

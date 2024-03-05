@@ -17,9 +17,11 @@ sealed interface CategoriesEvent : BaseEvent<EventHandler> {
         }
     }
 
-    data class OnOpen(val data: String) : CategoriesEvent
+    data class OnOpen(val data: Pair<String, CategoryWithRelationship>) : CategoriesEvent
 
-    data class OnSave(val data: Pair<String, CategoryWithRelationship>) : CategoriesEvent
+    data class OnSave(val data: Map<String, CategoryWithRelationship>) : CategoriesEvent {
+        constructor(data: Pair<String, CategoryWithRelationship>) : this(mapOf(data))
+    }
 
     data class OnCreate(val data: Pair<String, CategoryWithRelationship>) : CategoriesEvent
 

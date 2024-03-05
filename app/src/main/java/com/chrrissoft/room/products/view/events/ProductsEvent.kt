@@ -3,6 +3,7 @@ package com.chrrissoft.room.products.view.events
 import com.chrrissoft.room.base.view.event.BaseEvent
 import com.chrrissoft.room.products.db.objects.ProductWithRelationship
 import com.chrrissoft.room.products.view.viewmodels.ProductsViewModel.EventHandler
+import com.chrrissoft.room.shared.view.Page
 
 sealed interface ProductsEvent : BaseEvent<EventHandler> {
     override fun resolve(handler: EventHandler) {
@@ -12,12 +13,15 @@ sealed interface ProductsEvent : BaseEvent<EventHandler> {
             is OnCreate -> handler.onEvent(event = this)
             is OnChange -> handler.onEvent(event = this)
             is OnDelete -> handler.onEvent(event = this)
+            is OnChangePage -> handler.onEvent(event = this)
         }
     }
 
-    data class OnOpen(val data: String) : ProductsEvent
+    data class OnOpen(val data: Pair<String, ProductWithRelationship>) : ProductsEvent
 
-    data class OnSave(val data: Pair<String, ProductWithRelationship>) : ProductsEvent
+    data class OnSave(val data: Map<String, ProductWithRelationship>) : ProductsEvent {
+        constructor(data: Pair<String, ProductWithRelationship>) : this(mapOf(data))
+    }
 
     data class OnCreate(val data: Pair<String, ProductWithRelationship>) : ProductsEvent
 
@@ -26,4 +30,6 @@ sealed interface ProductsEvent : BaseEvent<EventHandler> {
     data class OnDelete(val data: Map<String, ProductWithRelationship>) : ProductsEvent {
         constructor(data: Pair<String, ProductWithRelationship>) : this(mapOf(data))
     }
+
+    class OnChangePage(val data: Page) : ProductsEvent
 }

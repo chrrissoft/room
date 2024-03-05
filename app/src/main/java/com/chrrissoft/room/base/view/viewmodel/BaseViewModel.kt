@@ -28,7 +28,7 @@ abstract class BaseViewModel<H : BaseEventHandler, S : BaseState> : ViewModel() 
 
     protected abstract val eventHandler: BaseEventHandler
 
-    protected abstract val _state: MutableStateFlow<S>
+    protected abstract val mutableState: MutableStateFlow<S>
     abstract val stateFlow: StateFlow<S>
     protected val state get() = run {
         stateFlow.value

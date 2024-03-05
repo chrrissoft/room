@@ -7,8 +7,8 @@ import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.ui.entities.SnackbarData
 
 data class ShipmentsState(
-    val shipping: ResState<Pair<String, ShippingWithRelationship>> = ResState.None,
-    val shipments: ResState<Map<String, ShippingWithRelationship>> = ResState.Loading,
+    val detail: ResState<Pair<String, ShippingWithRelationship>> = ResState.None,
+    val listing: ResState<Map<String, ShippingWithRelationship>> = ResState.Loading,
     override val snackbar: SnackbarData = SnackbarData(),
-    val page: Page = Page.LIST
+    val page: Page = Page.LIST,
 ) : BaseState()

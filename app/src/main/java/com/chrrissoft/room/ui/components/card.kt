@@ -26,39 +26,3 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import com.chrrissoft.room.ui.theme.cardColors
 
-@Composable
-fun Card(
-    modifier: Modifier = Modifier,
-    title: String? = null,
-    onInfo: (() -> Unit)? = null,
-    colors: CardColors = cardColors,
-    shape: Shape = CardDefaults.shape,
-    elevation: CardElevation = CardDefaults.cardElevation(),
-    border: BorderStroke? = null,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-    ) {
-        Column(Modifier.padding(12.dp)) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                title?.let { Text(text = it, style = typography.titleLarge) }
-                onInfo?.let {
-                    IconButton(onClick = { it() }) {
-                        Icon(imageVector = Icons.Rounded.Info, contentDescription = null)
-                    }
-                }
-            }
-            if (title != null || onInfo != null) Spacer(modifier = Modifier.height(10.dp))
-            content()
-        }
-    }
-}

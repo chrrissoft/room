@@ -17,9 +17,11 @@ sealed interface CountriesEvent : BaseEvent<EventHandler> {
         }
     }
 
-    data class OnOpen(val data: String) : CountriesEvent
+    data class OnOpen(val data: Pair<String, CountryWithRelationship>) : CountriesEvent
 
-    data class OnSave(val data: Pair<String, CountryWithRelationship>) : CountriesEvent
+    data class OnSave(val data: Map<String, CountryWithRelationship>) : CountriesEvent {
+        constructor(data: Pair<String, CountryWithRelationship>) : this(mapOf(data))
+    }
 
     data class OnCreate(val data: Pair<String, CountryWithRelationship>) : CountriesEvent
 
@@ -29,5 +31,5 @@ sealed interface CountriesEvent : BaseEvent<EventHandler> {
         constructor(data: Pair<String, CountryWithRelationship>) : this(mapOf(data))
     }
 
-    data class OnChangePage(val data: Page) : CountriesEvent
+    class OnChangePage(val data: Page) : CountriesEvent
 }

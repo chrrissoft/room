@@ -8,15 +8,19 @@ import com.chrrissoft.room.ui.components.SelectableRoomTextField
 
 @Composable
 fun PaymentList(
-    state: List<Payment>,
+    state: Payment,
     onSelect: (Payment) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(modifier) {
         items(Payment.payments) {
-            SelectableRoomTextField(value = it.name) {
-                onSelect(it)
-            }
+            SelectableRoomTextField(
+                value = it.name,
+                selected = state == it,
+                onClick = {
+                    onSelect(it)
+                }
+            )
         }
     }
 }

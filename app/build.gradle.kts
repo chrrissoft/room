@@ -14,8 +14,8 @@ android {
         applicationId = "com.chrrissoft.room"
         minSdk = 23
         targetSdk = 34
-        versionCode = 6
-        versionName = "1.1.0"
+        versionCode = 1
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -73,28 +73,18 @@ dependencies {
     implementation("com.google.dagger:hilt-android:2.48.1") // hilt-android
     kapt("com.google.dagger:hilt-android-compiler:2.48.1") // hilt-android-compiler
 
-    implementation("com.jakewharton.threetenabp:threetenabp:1.4.6") // threetenabp
-
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1") // systemuicontroller
 
     implementation("androidx.navigation:navigation-compose:2.7.7") // navigation-compose
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0") // hilt-navigation-compose
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0") // hilt-navigation-compose
 
-    implementation("androidx.compose.material:material-icons-extended:1.6.1") // material-icons
+    implementation("androidx.compose.material:material-icons-extended:1.6.2") // material-icons
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0") // serialization-json
-
-    implementation("com.airbnb.android:lottie-compose:6.2.0") // lottie
 
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1") // room-ktx
     implementation("androidx.room:room-runtime:2.6.1") // room-runtime
     annotationProcessor("androidx.room:room-compiler:2.6.1") // room:room-compiler
-
-    implementation("androidx.work:work-runtime-ktx:2.9.0") // work-runtime-ktx
-    implementation("androidx.hilt:hilt-work:1.1.0") // hilt-work
-
-    implementation("com.jakewharton.threetenabp:threetenabp:1.4.6") // threetenabp
 }
 
 kapt {

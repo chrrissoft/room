@@ -18,6 +18,7 @@ import com.chrrissoft.room.cities.view.viewmodels.CitiesViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,76 +37,76 @@ class CitiesViewModel @Inject constructor(
     private val DeleteCitiesUseCase: DeleteCitiesUseCase,
 ) : BaseViewModel<EventHandler, CitiesState>() {
     override val eventHandler = EventHandler()
-    override val _state = MutableStateFlow(CitiesState())
-    override val stateFlow = _state.asStateFlow()
+    override val mutableState = MutableStateFlow(CitiesState())
+    override val stateFlow = mutableState.asStateFlow()
 
-    private var listJob: Job? = null
     private var detailJob: Job? = null
+    private var listingJob: Job? = null
 
     init {
-        loadCities()
+        loadData()
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = openCity(event.data)
-
-        fun onEvent(event: OnSave) = saveCities(mapOf(event.data))
-
+        fun onEvent(event: OnSave) = save(event.data)
+        fun onEvent(event: OnOpen) = open(event.data)
         fun onEvent(event: OnCreate) = create(event.data)
-
-        fun onEvent(event: OnChange) = updateState(category = Success(event.data))
-
-        fun onEvent(event: OnDelete) = deleteCities(event.data.mapValues { it.value.city })
+        fun onEvent(event: OnChange) = change(event.data)
+        fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
+    private fun save(data: Map<String, CityWithRelationship>) {
+        save(data.map { it.value.city }) {  }
+    }
+
+    private fun open(data: Pair<String, CityWithRelationship>) {
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+        loadDetail(data.first)
+    }
 
     private fun create(data: Pair<String, CityWithRelationship>) {
-        (state.city as? Success)?.data?.let { saveCities(mapOf(it)) }
-        updateState(category = Success(data), page = Page.DETAIL)
+        detailJob?.cancel()
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+    }
+
+    private fun change(data: Pair<String, CityWithRelationship>) {
+        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    }
+
+    private fun delete(data: Map<String, CityWithRelationship>) {
+        updateState(listing = state.listing.map { it.minus(data.keys) })
+        delete(data.map { it.value.city }) { }
     }
 
 
-    private fun saveCities(data: Map<String, CityWithRelationship>) {
-        updateState(state.cities.map { it + data })
-        saveCities(data) { updateState() }
-    }
-
-    private fun saveCities(
-        data: Map<String, CityWithRelationship>,
+    private fun save(
+        data: List<City>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { SaveCitiesUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { SaveCitiesUseCase(data).collect { block(it) } }
 
 
-    private fun deleteCities(data: Map<String, City>) {
-        updateState(state.cities.map { it.minus(data.keys) })
-        deleteCities(data) { updateState() }
-    }
-
-    private fun deleteCities(
-        data: Map<String, City>,
+    private fun delete(
+        data: List<City>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { DeleteCitiesUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { DeleteCitiesUseCase(data).collect { block(it) } }
 
 
-    private fun loadCities() = collectCities { updateState(it) }
+    private fun loadData() = collectData { updateState(listing = it) }
 
-    private fun collectCities(
+    private fun collectData(
         block: suspend CoroutineScope.(ResState<Map<String, CityWithRelationship>>) -> Unit
     ) {
-        listJob?.cancel()
-        listJob = scope.launch { GetCitiesUseCase().collect { block(it) } }
+        listingJob?.cancel()
+        listingJob = scope.launch { GetCitiesUseCase().collect { block(it) } }
     }
 
-    private fun openCity(id: String) {
-        (state.city as? Success)?.data?.let { saveCities(mapOf(it)) }
-        updateState(page = Page.DETAIL)
-        loadCity(id)
-    }
 
-    private fun loadCity(id: String) = collectCity(id) { updateState(category = it) }
+    private fun loadDetail(id: String) = collectDetail(id) { updateState(detail = it) }
 
-    private fun collectCity(
+    private fun collectDetail(
         id: String,
         block: suspend CoroutineScope.(ResState<Pair<String, CityWithRelationship>>) -> Unit
     ) {
@@ -115,11 +116,13 @@ class CitiesViewModel @Inject constructor(
 
 
     private fun updateState(
-        cities: ResState<Map<String, CityWithRelationship>> = state.cities,
-        category: ResState<Pair<String, CityWithRelationship>> = state.city,
+        detail: ResState<Pair<String, CityWithRelationship>> = state.detail,
+        listing: ResState<Map<String, CityWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(city = category, cities = cities, page = page, snackbar = snackbar) }
+        mutableState.update {
+            it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
+        }
     }
 }

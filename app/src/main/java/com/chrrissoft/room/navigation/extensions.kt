@@ -12,13 +12,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
 
-fun NavHostController.navigate(
-    screen: Screen,
-    builder: NavOptionsBuilder.() -> Unit = {}
-) {
-    navigate(screen.route, builder)
-}
-
 fun NavGraphBuilder.screen(
     screen: Screen,
     deepLinks: List<NavDeepLink> = emptyList(),

@@ -37,92 +37,92 @@ class CountriesViewModel @Inject constructor(
     private val DeleteCountriesUseCase: DeleteCountriesUseCase,
 ) : BaseViewModel<EventHandler, CountriesState>() {
     override val eventHandler = EventHandler()
-    override val _state = MutableStateFlow(CountriesState())
-    override val stateFlow = _state.asStateFlow()
+    override val mutableState = MutableStateFlow(CountriesState())
+    override val stateFlow = mutableState.asStateFlow()
 
-    private var listJob: Job? = null
     private var detailJob: Job? = null
+    private var listingJob: Job? = null
 
     init {
-        loadCountries()
+        loadData()
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = openCountry(event.data)
-
-        fun onEvent(event: OnSave) = saveCountries(mapOf(event.data))
-
+        fun onEvent(event: OnSave) = save(event.data)
+        fun onEvent(event: OnOpen) = open(event.data)
         fun onEvent(event: OnCreate) = create(event.data)
-
-        fun onEvent(event: OnChange) = updateState(country = Success(event.data))
-
-        fun onEvent(event: OnDelete) = deleteCountries(event.data.mapValues { it.value.country })
-
+        fun onEvent(event: OnChange) = change(event.data)
+        fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
+    private fun save(data: Map<String, CountryWithRelationship>) {
+        save(data.map { it.value.country }) {  }
+    }
+
+    private fun open(data: Pair<String, CountryWithRelationship>) {
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+        loadDetail(data.first)
+    }
 
     private fun create(data: Pair<String, CountryWithRelationship>) {
-        (state.country as? Success)?.data?.let { saveCountries(mapOf(it)) }
-        updateState(country = Success(data), page = DETAIL)
-        (state.country as? Success)?.data?.let { saveCountries(mapOf(it)) }
+        detailJob?.cancel()
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+    }
+
+    private fun change(data: Pair<String, CountryWithRelationship>) {
+        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    }
+
+    private fun delete(data: Map<String, CountryWithRelationship>) {
+        updateState(listing = state.listing.map { it.minus(data.keys) })
+        delete(data.map { it.value.country }) { }
     }
 
 
-    private fun saveCountries(data: Map<String, CountryWithRelationship>) {
-        updateState(state.countries.map { it + data })
-        saveCountries(data) { updateState() }
-    }
-
-    private fun saveCountries(
-        data: Map<String, CountryWithRelationship>,
+    private fun save(
+        data: List<Country>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { SaveCountriesUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { SaveCountriesUseCase(data).collect { block(it) } }
 
 
-    private fun deleteCountries(data: Map<String, Country>) {
-        updateState(state.countries.map { it.minus(data.keys) })
-        deleteCountries(data) {  }
-    }
-
-    private fun deleteCountries(
-        data: Map<String, Country>,
+    private fun delete(
+        data: List<Country>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { DeleteCountriesUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { DeleteCountriesUseCase(data).collect { block(it) } }
 
 
-    private fun loadCountries() = collectCountries { updateState(it) }
+    private fun loadData() = collectData { updateState(listing = it) }
 
-    private fun collectCountries(
+    private fun collectData(
         block: suspend CoroutineScope.(ResState<Map<String, CountryWithRelationship>>) -> Unit
     ) {
-        listJob?.cancel()
-        listJob = scope.launch { GetCountriesUseCase().collect { block(it) } }
+        listingJob?.cancel()
+        listingJob = scope.launch { GetCountriesUseCase().collect { block(it) } }
     }
 
-    private fun openCountry(id: String) {
-        (state.country as? Success)?.data?.let { saveCountries(mapOf(it)) }
-        loadCountry(id)
-        updateState(page = DETAIL)
-    }
 
-    private fun loadCountry(id: String) = collectCountry(id) { updateState(country = it) }
+    private fun loadDetail(id: String) = collectDetail(id) { updateState(detail = it) }
 
-    private fun collectCountry(
+    private fun collectDetail(
         id: String,
         block: suspend CoroutineScope.(ResState<Pair<String, CountryWithRelationship>>) -> Unit
-    )  {
+    ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetCountriesUseCase(id).collect { block(it) } }
     }
 
 
     private fun updateState(
-        countries: ResState<Map<String, CountryWithRelationship>> = state.countries,
-        country: ResState<Pair<String, CountryWithRelationship>> = state.country,
-        snackbar: SnackbarData = state.snackbar,
+        detail: ResState<Pair<String, CountryWithRelationship>> = state.detail,
+        listing: ResState<Map<String, CountryWithRelationship>> = state.listing,
         page: Page = state.page,
+        snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(country = country, countries = countries, snackbar = snackbar, page = page) }
+        mutableState.update {
+            it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
+        }
     }
 }

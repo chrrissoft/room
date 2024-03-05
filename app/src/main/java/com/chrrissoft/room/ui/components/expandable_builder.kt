@@ -14,28 +14,3 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-@Composable
-fun ExpandableBuilder(
-    expanded: Boolean,
-    modifier: Modifier = Modifier,
-    builder: @Composable () -> Unit,
-    expandedContent: @Composable () -> Unit,
-    maxHeight: Dp = LocalConfiguration.current.screenHeightDp.div(3).dp,
-) {
-    val background = if (expanded) MaterialTheme.colorScheme.primaryContainer.copy((.3f)) else Color.Transparent
-    val padding = if (expanded) 10.dp else 0.dp
-
-    Column(
-        modifier = modifier
-            .heightIn(max = maxHeight)
-            .clip(MaterialTheme.shapes.medium)
-            .background(background)
-            .padding(padding)
-            .animateContentSize()
-    ) {
-        builder()
-        if (expanded) {
-            expandedContent()
-        }
-    }
-}

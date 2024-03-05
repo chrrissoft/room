@@ -23,22 +23,22 @@ fun CostumersScreen(
             page = state.page,
             title = "Costumers",
             onChangePage = { onEvent(CostumersEvent.OnChangePage(it)) },
-            onSave = { state.costumer.getSuccess()?.let { onEvent(CostumersEvent.OnSave(it)) } },
+            onSave = { state.detail.getSuccess()?.let { onEvent(CostumersEvent.OnSave(it)) } },
             onCreate = { onEvent(CostumersEvent.OnCreate(it to CostumerWithRelationship(Costumer(it)))) },
             onNavigation = onOpenDrawer,
             details = {
                 CostumerWithRelationship(
-                    state = state.costumer,
+                    state = state.detail,
                     onStateChange = { onEvent(CostumersEvent.OnChange(it)) },
-                    cities = citiesState.cities,
+                    cities = citiesState.listing,
                 )
             },
             list = {
                 CostumersList(
-                    state = state.costumers,
+                    state = state.listing,
                     onDelete = { onEvent(CostumersEvent.OnDelete(it)) },
-                    selected = setOf(),
-                    onSelect = { onEvent(CostumersEvent.OnOpen(it.first)) },
+                    selected = setOf(state.detail.getSuccess()?.first),
+                    onSelect = { onEvent(CostumersEvent.OnOpen(it)) },
                 )
             },
             snackbarHost = { AlarmManagerSnackbar(state = state.snackbar) }

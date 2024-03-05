@@ -15,36 +15,3 @@ import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Shape
 import com.chrrissoft.room.ui.theme.inputChipColors
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun MyInputChip(
-    selected: Boolean,
-    onClick: () -> Unit,
-    label: @Composable () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    avatar: @Composable (() -> Unit)? = null,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    shape: Shape = InputChipDefaults.shape,
-    colors: SelectableChipColors = inputChipColors,
-    elevation: SelectableChipElevation? = InputChipDefaults.inputChipElevation(),
-    border: SelectableChipBorder? = inputChipBorder(Transparent, disabledBorderColor = Transparent),
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-) {
-    InputChip(
-        selected = selected,
-        onClick = onClick,
-        label = label,
-        modifier = modifier,
-        enabled = enabled,
-        leadingIcon = leadingIcon,
-        avatar = avatar,
-        trailingIcon = trailingIcon,
-        shape = shape,
-        colors = colors,
-        elevation = elevation,
-        border = border,
-        interactionSource = interactionSource,
-    )
-}

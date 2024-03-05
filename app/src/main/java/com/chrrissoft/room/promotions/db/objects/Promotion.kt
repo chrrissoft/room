@@ -10,4 +10,8 @@ data class Promotion(
     @ColumnInfo(name = "id") val id: String,
     @ColumnInfo(name = "name") val name: String = "",
     @ColumnInfo(name = "description") val description: String = "",
-)
+) {
+    companion object {
+        val invalid = Promotion("")
+    }
+}

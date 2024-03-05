@@ -20,9 +20,5 @@ sealed interface ResState<out R> {
     }
 
     companion object {
-        @Suppress("FunctionName")
-        fun<T> SuccessOrNone(data: T?) : ResState<T> {
-            return if (data == null) None else Success(data)
-        }
     }
 }

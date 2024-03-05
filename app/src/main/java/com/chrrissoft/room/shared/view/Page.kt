@@ -13,7 +13,7 @@ enum class Page : Page {
     },
     DETAIL {
         override val icon = Icons.Rounded.Details
-        override val label = R.string.detals_page_label
+        override val label = R.string.detail_page_label
     },;
 
     companion object {

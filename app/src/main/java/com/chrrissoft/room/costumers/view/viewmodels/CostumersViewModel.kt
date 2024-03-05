@@ -18,6 +18,7 @@ import com.chrrissoft.room.costumers.view.viewmodels.CostumersViewModel.EventHan
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,76 +37,76 @@ class CostumersViewModel @Inject constructor(
     private val DeleteCostumersUseCase: DeleteCostumersUseCase,
 ) : BaseViewModel<EventHandler, CostumersState>() {
     override val eventHandler = EventHandler()
-    override val _state = MutableStateFlow(CostumersState())
-    override val stateFlow = _state.asStateFlow()
+    override val mutableState = MutableStateFlow(CostumersState())
+    override val stateFlow = mutableState.asStateFlow()
 
-    private var listJob: Job? = null
     private var detailJob: Job? = null
+    private var listingJob: Job? = null
 
     init {
-        loadCostumers()
+        loadData()
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = openCostumer(event.data)
-
-        fun onEvent(event: OnSave) = saveCostumers(mapOf(event.data))
-
+        fun onEvent(event: OnSave) = save(event.data)
+        fun onEvent(event: OnOpen) = open(event.data)
         fun onEvent(event: OnCreate) = create(event.data)
-
-        fun onEvent(event: OnChange) = updateState(costumer = Success(event.data))
-
-        fun onEvent(event: OnDelete) = deleteCostumers(event.data.mapValues { it.value.costumer })
+        fun onEvent(event: OnChange) = change(event.data)
+        fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
+    private fun save(data: Map<String, CostumerWithRelationship>) {
+        save(data.map { it.value.costumer }) {  }
+    }
+
+    private fun open(data: Pair<String, CostumerWithRelationship>) {
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+        loadDetail(data.first)
+    }
 
     private fun create(data: Pair<String, CostumerWithRelationship>) {
-        (state.costumer as? Success)?.data?.let { saveCostumers(mapOf(it)) }
-        updateState(costumer = Success(data), page = Page.DETAIL)
+        detailJob?.cancel()
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+    }
+
+    private fun change(data: Pair<String, CostumerWithRelationship>) {
+        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    }
+
+    private fun delete(data: Map<String, CostumerWithRelationship>) {
+        updateState(listing = state.listing.map { it.minus(data.keys) })
+        delete(data.map { it.value.costumer }) { }
     }
 
 
-    private fun saveCostumers(data: Map<String, CostumerWithRelationship>) {
-        updateState(state.costumers.map { it + data })
-        saveCostumers(data) { updateState() }
-    }
-
-    private fun saveCostumers(
-        data: Map<String, CostumerWithRelationship>,
+    private fun save(
+        data: List<Costumer>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { SaveCostumersUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { SaveCostumersUseCase(data).collect { block(it) } }
 
 
-    private fun deleteCostumers(data: Map<String, Costumer>) {
-        updateState(state.costumers.map { it.minus(data.keys) })
-        deleteCostumers(data) { updateState() }
-    }
-
-    private fun deleteCostumers(
-        data: Map<String, Costumer>,
+    private fun delete(
+        data: List<Costumer>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { DeleteCostumersUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { DeleteCostumersUseCase(data).collect { block(it) } }
 
 
-    private fun loadCostumers() = collectCostumers { updateState(it) }
+    private fun loadData() = collectData { updateState(listing = it) }
 
-    private fun collectCostumers(
+    private fun collectData(
         block: suspend CoroutineScope.(ResState<Map<String, CostumerWithRelationship>>) -> Unit
     ) {
-        listJob?.cancel()
-        listJob = scope.launch { GetCostumersUseCase().collect { block(it) } }
+        listingJob?.cancel()
+        listingJob = scope.launch { GetCostumersUseCase().collect { block(it) } }
     }
 
-    private fun openCostumer(id: String) {
-        (state.costumer as? Success)?.data?.let { saveCostumers(mapOf(it)) }
-        updateState(page = Page.DETAIL)
-        loadCostumer(id)
-    }
 
-    private fun loadCostumer(id: String) = collectCostumer(id) { updateState(costumer = it) }
+    private fun loadDetail(id: String) = collectDetail(id) { updateState(detail = it) }
 
-    private fun collectCostumer(
+    private fun collectDetail(
         id: String,
         block: suspend CoroutineScope.(ResState<Pair<String, CostumerWithRelationship>>) -> Unit
     ) {
@@ -115,18 +116,13 @@ class CostumersViewModel @Inject constructor(
 
 
     private fun updateState(
-        costumers: ResState<Map<String, CostumerWithRelationship>> = state.costumers,
-        costumer: ResState<Pair<String, CostumerWithRelationship>> = state.costumer,
+        detail: ResState<Pair<String, CostumerWithRelationship>> = state.detail,
+        listing: ResState<Map<String, CostumerWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update {
-            it.copy(
-                costumer = costumer,
-                costumers = costumers,
-                page = page,
-                snackbar = snackbar
-            )
+        mutableState.update {
+            it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
         }
     }
 }

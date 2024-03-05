@@ -17,9 +17,11 @@ sealed interface PromotionsEvent : BaseEvent<EventHandler> {
         }
     }
 
-    data class OnOpen(val data: String) : PromotionsEvent
+    data class OnOpen(val data: Pair<String, PromotionWithRelationship>) : PromotionsEvent
 
-    data class OnSave(val data: Pair<String, PromotionWithRelationship>) : PromotionsEvent
+    data class OnSave(val data: Map<String, PromotionWithRelationship>) : PromotionsEvent {
+        constructor(data: Pair<String, PromotionWithRelationship>) : this(mapOf(data))
+    }
 
     data class OnCreate(val data: Pair<String, PromotionWithRelationship>) : PromotionsEvent
 
@@ -29,5 +31,5 @@ sealed interface PromotionsEvent : BaseEvent<EventHandler> {
         constructor(data: Pair<String, PromotionWithRelationship>) : this(mapOf(data))
     }
 
-    class OnChangePage(val data: Page) :PromotionsEvent
+    class OnChangePage(val data: Page) : PromotionsEvent
 }

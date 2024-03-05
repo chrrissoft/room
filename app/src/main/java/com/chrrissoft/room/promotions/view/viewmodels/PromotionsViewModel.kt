@@ -18,6 +18,7 @@ import com.chrrissoft.room.promotions.view.viewmodels.PromotionsViewModel.EventH
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,78 +37,76 @@ class PromotionsViewModel @Inject constructor(
     private val DeletePromotionsUseCase: DeletePromotionsUseCase,
 ) : BaseViewModel<EventHandler, PromotionsState>() {
     override val eventHandler = EventHandler()
-    override val _state = MutableStateFlow(PromotionsState())
-    override val stateFlow = _state.asStateFlow()
+    override val mutableState = MutableStateFlow(PromotionsState())
+    override val stateFlow = mutableState.asStateFlow()
 
-    private var listJob: Job? = null
     private var detailJob: Job? = null
+    private var listingJob: Job? = null
 
     init {
-        loadPromotions()
+        loadData()
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = openPromotion(event.data)
-
-        fun onEvent(event: OnSave) = savePromotions(mapOf(event.data))
-
+        fun onEvent(event: OnSave) = save(event.data)
+        fun onEvent(event: OnOpen) = open(event.data)
         fun onEvent(event: OnCreate) = create(event.data)
-
-        fun onEvent(event: OnChange) = updateState(promotion = Success(event.data))
-
-        fun onEvent(event: OnDelete) = deletePromotions(event.data.mapValues { it.value.promotion })
+        fun onEvent(event: OnChange) = change(event.data)
+        fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
+    private fun save(data: Map<String, PromotionWithRelationship>) {
+        save(data.map { it.value.promotion }) {  }
+    }
+
+    private fun open(data: Pair<String, PromotionWithRelationship>) {
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+        loadDetail(data.first)
+    }
 
     private fun create(data: Pair<String, PromotionWithRelationship>) {
         detailJob?.cancel()
-        (state.promotion as? Success)?.data?.let { savePromotions(mapOf(it)) }
-        updateState(promotion = Success(data), page = Page.DETAIL)
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+    }
+
+    private fun change(data: Pair<String, PromotionWithRelationship>) {
+        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    }
+
+    private fun delete(data: Map<String, PromotionWithRelationship>) {
+        updateState(listing = state.listing.map { it.minus(data.keys) })
+        delete(data.map { it.value.promotion }) { }
     }
 
 
-    private fun savePromotions(data: Map<String, PromotionWithRelationship>) {
-        updateState(state.promotions.map { it + data })
-        savePromotions(data) {  }
-    }
-
-    private fun savePromotions(
-        data: Map<String, PromotionWithRelationship>,
+    private fun save(
+        data: List<Promotion>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { SavePromotionsUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { SavePromotionsUseCase(data).collect { block(it) } }
 
 
-    private fun deletePromotions(data: Map<String, Promotion>) {
-        updateState(state.promotions.map { it.minus(data.keys) })
-        deletePromotions(data) { updateState() }
-    }
-
-    private fun deletePromotions(
-        data: Map<String, Promotion>,
+    private fun delete(
+        data: List<Promotion>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { DeletePromotionsUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { DeletePromotionsUseCase(data).collect { block(it) } }
 
 
-    private fun loadPromotions() = collectPromotions { updateState(it) }
+    private fun loadData() = collectData { updateState(listing = it) }
 
-    private fun collectPromotions(
+    private fun collectData(
         block: suspend CoroutineScope.(ResState<Map<String, PromotionWithRelationship>>) -> Unit
     ) {
-        listJob?.cancel()
-        listJob = scope.launch { GetPromotionsUseCase().collect { block(it) } }
+        listingJob?.cancel()
+        listingJob = scope.launch { GetPromotionsUseCase().collect { block(it) } }
     }
 
 
-    private fun openPromotion(id: String) {
-        (state.promotion as? Success)?.data?.let { savePromotions(mapOf(it)) }
-        updateState(page = Page.DETAIL)
-        loadPromotion(id)
-    }
+    private fun loadDetail(id: String) = collectDetail(id) { updateState(detail = it) }
 
-    private fun loadPromotion(id: String) = collectPromotion(id) { updateState(promotion = it) }
-
-    private fun collectPromotion(
+    private fun collectDetail(
         id: String,
         block: suspend CoroutineScope.(ResState<Pair<String, PromotionWithRelationship>>) -> Unit
     ) {
@@ -117,11 +116,13 @@ class PromotionsViewModel @Inject constructor(
 
 
     private fun updateState(
-        promotions: ResState<Map<String, PromotionWithRelationship>> = state.promotions,
-        promotion: ResState<Pair<String, PromotionWithRelationship>> = state.promotion,
+        detail: ResState<Pair<String, PromotionWithRelationship>> = state.detail,
+        listing: ResState<Map<String, PromotionWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(promotion = promotion, promotions = promotions, page = page, snackbar = snackbar) }
+        mutableState.update {
+            it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
+        }
     }
 }

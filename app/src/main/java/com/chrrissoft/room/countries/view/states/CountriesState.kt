@@ -7,8 +7,8 @@ import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.ui.entities.SnackbarData
 
 data class CountriesState(
-    val country: ResState<Pair<String, CountryWithRelationship>> = ResState.None,
-    val countries: ResState<Map<String, CountryWithRelationship>> = ResState.Loading,
+    val detail: ResState<Pair<String, CountryWithRelationship>> = ResState.None,
+    val listing: ResState<Map<String, CountryWithRelationship>> = ResState.Loading,
     override val snackbar: SnackbarData = SnackbarData(),
     val page: Page = Page.LIST,
 ) : BaseState()

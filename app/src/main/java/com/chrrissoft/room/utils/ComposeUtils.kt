@@ -1,17 +1,12 @@
 package com.chrrissoft.room.utils
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.chrrissoft.room.utils.Utils.Try
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -20,14 +15,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 object ComposeUtils {
-    @SuppressLint("ComposableNaming")
-    @Composable
-    fun <T> RowScope.forEach(list: List<T>, space: Float = .05f, block: @Composable (T) -> Unit) {
-        list.forEachIndexed { index, i ->
-            block(i)
-            if (index < list.lastIndex) Spacer(modifier = Modifier.weight(space))
-        }
-    }
 
     fun SnackbarHostState.show(
         scope: CoroutineScope,

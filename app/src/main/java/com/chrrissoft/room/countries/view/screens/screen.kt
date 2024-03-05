@@ -1,7 +1,6 @@
 package com.chrrissoft.room.countries.view.screens
 
 import androidx.compose.runtime.Composable
-import com.chrrissoft.room.cities.view.events.CitiesEvent
 import com.chrrissoft.room.cities.view.states.CitiesState
 import com.chrrissoft.room.countries.db.objects.Country
 import com.chrrissoft.room.countries.db.objects.CountryWithRelationship
@@ -23,29 +22,28 @@ fun CountriesScreen(
     state: CountriesState,
     onEvent: (CountriesEvent) -> Unit,
     citiesState: CitiesState,
-    onCitiesEvent: (CitiesEvent) -> Unit,
     onOpenDrawer: () -> Unit,
 ) {
     CommonScreen(
         page = state.page,
         title = "Countries",
         onChangePage = { onEvent(OnChangePage(it)) },
-        onSave = { state.country.getSuccess()?.let { onEvent(OnSave(it)) } },
+        onSave = { state.detail.getSuccess()?.let { onEvent(OnSave(it)) } },
         onCreate = { onEvent(OnCreate(it to CountryWithRelationship(Country(it)))) },
         onNavigation = onOpenDrawer,
         details = {
             CountryWithRelationship(
-                state = state.country,
-                cities = citiesState.cities,
+                state = state.detail,
+                cities = citiesState.listing,
                 onStateChange = { onEvent(OnChange(it)) },
             )
         },
         list = {
             CountriesList(
-                state = state.countries,
+                state = state.listing,
                 onDelete = { onEvent(OnDelete(it)) },
-                selected = setOf(),
-                onSelect = { onEvent(OnOpen(it.first)) },
+                selected = setOf(state.detail.getSuccess()?.first),
+                onSelect = { onEvent(OnOpen(it)) },
             )
         },
     )

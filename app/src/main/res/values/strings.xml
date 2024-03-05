@@ -16,5 +16,5 @@
     <string name="shipments">Shipments</string>
     <string name="suppliers">Suppliers</string>
     <string name="list_page_label">List</string>
-    <string name="detals_page_label">Details</string>
+    <string name="detail_page_label">Details</string>
 </resources>

@@ -17,9 +17,11 @@ sealed interface CostumersEvent : BaseEvent<EventHandler> {
         }
     }
 
-    data class OnOpen(val data: String) : CostumersEvent
+    data class OnOpen(val data: Pair<String, CostumerWithRelationship>) : CostumersEvent
 
-    data class OnSave(val data: Pair<String, CostumerWithRelationship>) : CostumersEvent
+    data class OnSave(val data: Map<String, CostumerWithRelationship>) : CostumersEvent {
+        constructor(data: Pair<String, CostumerWithRelationship>) : this(mapOf(data))
+    }
 
     data class OnCreate(val data: Pair<String, CostumerWithRelationship>) : CostumersEvent
 

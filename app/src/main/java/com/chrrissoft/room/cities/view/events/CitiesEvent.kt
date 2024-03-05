@@ -17,9 +17,11 @@ sealed interface CitiesEvent : BaseEvent<EventHandler> {
         }
     }
 
-    data class OnOpen(val data: String) : CitiesEvent
+    data class OnOpen(val data: Pair<String, CityWithRelationship>) : CitiesEvent
 
-    data class OnSave(val data: Pair<String, CityWithRelationship>) : CitiesEvent
+    data class OnSave(val data: Map<String, CityWithRelationship>) : CitiesEvent {
+        constructor(data: Pair<String, CityWithRelationship>) : this(mapOf(data))
+    }
 
     data class OnCreate(val data: Pair<String, CityWithRelationship>) : CitiesEvent
 

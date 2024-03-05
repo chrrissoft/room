@@ -1,7 +1,8 @@
 package com.chrrissoft.room.shipments.view.screens
 
 import androidx.compose.runtime.Composable
-import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.carriers.view.states.CarriersState
+import com.chrrissoft.room.orders.view.states.OrdersState
 import com.chrrissoft.room.shipments.db.objects.Shipping
 import com.chrrissoft.room.shipments.db.objects.ShippingWithRelationship
 import com.chrrissoft.room.shipments.view.events.ShipmentsEvent
@@ -15,6 +16,8 @@ import com.chrrissoft.room.utils.ResStateUtils.getSuccess
 @Composable
 fun ShipmentsScreen(
     state: ShipmentsState,
+    carriersState: CarriersState,
+    ordersState: OrdersState,
     onEvent: (ShipmentsEvent) -> Unit,
     onOpenDrawer: () -> Unit,
 ) {
@@ -22,24 +25,23 @@ fun ShipmentsScreen(
         page = state.page,
         title = "Shipments",
         onChangePage = { onEvent(ShipmentsEvent.OnChangePage(it)) },
-        onSave = { state.shipping.getSuccess()?.let { onEvent(ShipmentsEvent.OnSave(it)) } },
+        onSave = { state.detail.getSuccess()?.let { onEvent(ShipmentsEvent.OnSave(it)) } },
         onCreate = { onEvent(ShipmentsEvent.OnCreate(it to ShippingWithRelationship(Shipping(it)))) },
         onNavigation = onOpenDrawer,
         details = {
             ShippingWithRelationship(
-                state = state.shipping,
+                state = state.detail,
                 onStateChange = { onEvent(ShipmentsEvent.OnChange(it)) },
-                orders = ResState.None,
-                sales = emptyList(),
-                carriers = emptyList(),
+                carriers = carriersState.listing,
+                orders = ordersState.listing,
             )
         },
         list = {
             ShipmentsList(
-                state = state.shipments,
+                state = state.listing,
                 onDelete = { onEvent(ShipmentsEvent.OnDelete(it)) },
-                selected = setOf(),
-                onSelect = { onEvent(ShipmentsEvent.OnOpen(it.first)) },
+                selected = setOf(state.detail.getSuccess()?.first),
+                onSelect = { onEvent(ShipmentsEvent.OnOpen(it)) },
             )
         },
         snackbarHost = { AlarmManagerSnackbar(state = state.snackbar) }

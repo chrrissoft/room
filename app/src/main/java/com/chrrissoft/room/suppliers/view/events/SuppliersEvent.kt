@@ -1,9 +1,9 @@
 package com.chrrissoft.room.suppliers.view.events
 
 import com.chrrissoft.room.base.view.event.BaseEvent
-import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.suppliers.db.objects.SupplierWithRelationship
 import com.chrrissoft.room.suppliers.view.viewmodels.SuppliersViewModel.EventHandler
+import com.chrrissoft.room.shared.view.Page
 
 sealed interface SuppliersEvent : BaseEvent<EventHandler> {
     override fun resolve(handler: EventHandler) {
@@ -17,9 +17,11 @@ sealed interface SuppliersEvent : BaseEvent<EventHandler> {
         }
     }
 
-    data class OnOpen(val data: String) : SuppliersEvent
+    data class OnOpen(val data: Pair<String, SupplierWithRelationship>) : SuppliersEvent
 
-    data class OnSave(val data: Pair<String, SupplierWithRelationship>) : SuppliersEvent
+    data class OnSave(val data: Map<String, SupplierWithRelationship>) : SuppliersEvent {
+        constructor(data: Pair<String, SupplierWithRelationship>) : this(mapOf(data))
+    }
 
     data class OnCreate(val data: Pair<String, SupplierWithRelationship>) : SuppliersEvent
 

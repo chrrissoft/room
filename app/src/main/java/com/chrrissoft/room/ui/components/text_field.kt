@@ -16,8 +16,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction.Companion.Next
+import androidx.compose.ui.text.input.KeyboardCapitalization.Companion.Words
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import com.chrrissoft.room.ui.theme.selectableTextFieldColors
 import com.chrrissoft.room.ui.theme.textFieldColors
 
 @Composable
@@ -41,7 +44,8 @@ fun SelectableRoomTextField(
     minLines: Int = 1,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     shape: Shape = MaterialTheme.shapes.medium,
-    colors: TextFieldColors = textFieldColors(),
+    selected: Boolean,
+    colors: TextFieldColors = selectableTextFieldColors(selected),
     onClick: () -> Unit,
 ) {
     RoomTextField(
@@ -66,7 +70,10 @@ fun SelectableRoomTextField(
         shape = shape,
         colors = colors,
         enabled = false,
-        modifier = modifier.clickable { onClick() },
+        modifier = modifier.padding(bottom = 10.dp).clickable(
+            remember { MutableInteractionSource() },
+            indication = null
+        ) { onClick() },
     )
 }
 
@@ -87,7 +94,7 @@ fun RoomTextField(
     supportingText: @Composable (() -> Unit)? = null,
     isError: Boolean = false,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(Words, imeAction = Next),
     keyboardActions: KeyboardActions = KeyboardActions.Default,
     singleLine: Boolean = false,
     maxLines: Int = if (singleLine) 1 else Int.MAX_VALUE,

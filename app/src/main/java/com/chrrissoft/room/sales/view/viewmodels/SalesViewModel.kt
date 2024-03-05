@@ -7,7 +7,6 @@ import com.chrrissoft.room.sales.db.objects.SaleWithRelationship
 import com.chrrissoft.room.sales.db.usecases.DeleteSalesUseCase
 import com.chrrissoft.room.sales.db.usecases.GetSalesUseCase
 import com.chrrissoft.room.sales.db.usecases.SaveSalesUseCase
-import com.chrrissoft.room.sales.view.events.SalesEvent
 import com.chrrissoft.room.sales.view.events.SalesEvent.OnChange
 import com.chrrissoft.room.sales.view.events.SalesEvent.OnChangePage
 import com.chrrissoft.room.sales.view.events.SalesEvent.OnCreate
@@ -19,10 +18,12 @@ import com.chrrissoft.room.sales.view.viewmodels.SalesViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -36,82 +37,92 @@ class SalesViewModel @Inject constructor(
     private val DeleteSalesUseCase: DeleteSalesUseCase,
 ) : BaseViewModel<EventHandler, SalesState>() {
     override val eventHandler = EventHandler()
-    override val _state = MutableStateFlow(SalesState())
-    override val stateFlow = _state.asStateFlow()
+    override val mutableState = MutableStateFlow(SalesState())
+    override val stateFlow = mutableState.asStateFlow()
+
+    private var detailJob: Job? = null
+    private var listingJob: Job? = null
 
     init {
-        loadSales()
+        loadData()
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = openSale(event.data)
-
-        fun onEvent(event: OnSave) = saveSales(mapOf(event.data))
-
+        fun onEvent(event: OnSave) = save(event.data)
+        fun onEvent(event: OnOpen) = open(event.data)
         fun onEvent(event: OnCreate) = create(event.data)
-
-        fun onEvent(event: OnChange) = updateState(sale = Success(event.data))
-
-        fun onEvent(event: OnDelete) = deleteSales(event.data.mapValues { it.value.sale })
-
+        fun onEvent(event: OnChange) = change(event.data)
+        fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
+    private fun save(data: Map<String, SaleWithRelationship>) {
+        save(data.map { it.value.sale }) {  }
+    }
+
+    private fun open(data: Pair<String, SaleWithRelationship>) {
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+        loadDetail(data.first)
+    }
 
     private fun create(data: Pair<String, SaleWithRelationship>) {
-        (state.sale as? Success)?.data?.let { saveSales(mapOf(it)) }
-        updateState(sale = Success(data), page = Page.DETAIL)
+        detailJob?.cancel()
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+    }
+
+    private fun change(data: Pair<String, SaleWithRelationship>) {
+        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    }
+
+    private fun delete(data: Map<String, SaleWithRelationship>) {
+        updateState(listing = state.listing.map { it.minus(data.keys) })
+        delete(data.map { it.value.sale }) { }
     }
 
 
-    private fun saveSales(data: Map<String, SaleWithRelationship>) {
-        updateState(state.sales.map { it + data })
-        saveSales(data) { updateState() }
-    }
-
-    private fun saveSales(
-        data: Map<String, SaleWithRelationship>,
+    private fun save(
+        data: List<Sale>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { SaveSalesUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { SaveSalesUseCase(data).collect { block(it) } }
 
 
-    private fun deleteSales(data: Map<String, Sale>) {
-        updateState(state.sales.map { it.minus(data.keys) })
-        deleteSales(data) { updateState() }
-    }
-
-    private fun deleteSales(
-        data: Map<String, Sale>,
+    private fun delete(
+        data: List<Sale>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { DeleteSalesUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { DeleteSalesUseCase(data).collect { block(it) } }
 
 
-    private fun loadSales() = collectSales { updateState(it) }
+    private fun loadData() = collectData { updateState(listing = it) }
 
-    private fun collectSales(
+    private fun collectData(
         block: suspend CoroutineScope.(ResState<Map<String, SaleWithRelationship>>) -> Unit
-    ) = scope.launch { GetSalesUseCase().collect { block(it) } }
-
-
-    private fun openSale(id: String) {
-        updateState(page = Page.DETAIL)
-        loadSale(id)
+    ) {
+        listingJob?.cancel()
+        listingJob = scope.launch { GetSalesUseCase().collect { block(it) } }
     }
 
-    private fun loadSale(id: String) = collectSale(id) { updateState(sale = it) }
 
-    private fun collectSale(
+    private fun loadDetail(id: String) = collectDetail(id) { updateState(detail = it) }
+
+    private fun collectDetail(
         id: String,
         block: suspend CoroutineScope.(ResState<Pair<String, SaleWithRelationship>>) -> Unit
-    ) = scope.launch { GetSalesUseCase(id).collect { block(it) } }
+    ) {
+        detailJob?.cancel()
+        detailJob = scope.launch { GetSalesUseCase(id).collect { block(it) } }
+    }
 
 
     private fun updateState(
-        sales: ResState<Map<String, SaleWithRelationship>> = state.sales,
-        sale: ResState<Pair<String, SaleWithRelationship>> = state.sale,
+        detail: ResState<Pair<String, SaleWithRelationship>> = state.detail,
+        listing: ResState<Map<String, SaleWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(sale = sale, sales = sales, page = page, snackbar = snackbar) }
+        mutableState.update {
+            it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
+        }
     }
 }

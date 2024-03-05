@@ -17,9 +17,11 @@ sealed interface SalesEvent : BaseEvent<EventHandler> {
         }
     }
 
-    data class OnOpen(val data: String) : SalesEvent
+    data class OnOpen(val data: Pair<String, SaleWithRelationship>) : SalesEvent
 
-    data class OnSave(val data: Pair<String, SaleWithRelationship>) : SalesEvent
+    data class OnSave(val data: Map<String, SaleWithRelationship>) : SalesEvent {
+        constructor(data: Pair<String, SaleWithRelationship>) : this(mapOf(data))
+    }
 
     data class OnCreate(val data: Pair<String, SaleWithRelationship>) : SalesEvent
 

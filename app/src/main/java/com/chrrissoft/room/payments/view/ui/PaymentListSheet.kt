@@ -8,7 +8,7 @@ import com.chrrissoft.room.ui.components.MyModalBottomSheet
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PaymentListSheet(
-    selected: List<Payment>,
+    selected: Payment,
     onSelect: (Payment) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,

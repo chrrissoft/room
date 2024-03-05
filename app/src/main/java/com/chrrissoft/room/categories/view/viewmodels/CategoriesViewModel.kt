@@ -18,6 +18,7 @@ import com.chrrissoft.room.categories.view.viewmodels.CategoriesViewModel.EventH
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,76 +37,76 @@ class CategoriesViewModel @Inject constructor(
     private val DeleteCategoriesUseCase: DeleteCategoriesUseCase,
 ) : BaseViewModel<EventHandler, CategoriesState>() {
     override val eventHandler = EventHandler()
-    override val _state = MutableStateFlow(CategoriesState())
-    override val stateFlow = _state.asStateFlow()
+    override val mutableState = MutableStateFlow(CategoriesState())
+    override val stateFlow = mutableState.asStateFlow()
 
-    private var listJob: Job? = null
     private var detailJob: Job? = null
+    private var listingJob: Job? = null
 
     init {
-        loadCategories()
+        loadData()
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = openCategory(event.data)
-
-        fun onEvent(event: OnSave) = saveCategories(mapOf(event.data))
-
+        fun onEvent(event: OnSave) = save(event.data)
+        fun onEvent(event: OnOpen) = open(event.data)
         fun onEvent(event: OnCreate) = create(event.data)
-
-        fun onEvent(event: OnChange) = updateState(category = Success(event.data))
-
-        fun onEvent(event: OnDelete) = deleteCategories(event.data.mapValues { it.value.category })
+        fun onEvent(event: OnChange) = change(event.data)
+        fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
+    private fun save(data: Map<String, CategoryWithRelationship>) {
+        save(data.map { it.value.category }) {  }
+    }
+
+    private fun open(data: Pair<String, CategoryWithRelationship>) {
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+        loadDetail(data.first)
+    }
 
     private fun create(data: Pair<String, CategoryWithRelationship>) {
-        (state.category as? Success)?.data?.let { saveCategories(mapOf(it)) }
-        updateState(category = Success(data), page = Page.DETAIL)
+        detailJob?.cancel()
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+    }
+
+    private fun change(data: Pair<String, CategoryWithRelationship>) {
+        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    }
+
+    private fun delete(data: Map<String, CategoryWithRelationship>) {
+        updateState(listing = state.listing.map { it.minus(data.keys) })
+        delete(data.map { it.value.category }) { }
     }
 
 
-    private fun saveCategories(data: Map<String, CategoryWithRelationship>) {
-        updateState(state.categories.map { it + data })
-        saveCategories(data) { updateState() }
-    }
-
-    private fun saveCategories(
-        data: Map<String, CategoryWithRelationship>,
+    private fun save(
+        data: List<Category>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { SaveCategoriesUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { SaveCategoriesUseCase(data).collect { block(it) } }
 
 
-    private fun deleteCategories(data: Map<String, Category>) {
-        updateState(state.categories.map { it.minus(data.keys) })
-        deleteCategories(data) { updateState() }
-    }
-
-    private fun deleteCategories(
-        data: Map<String, Category>,
+    private fun delete(
+        data: List<Category>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { DeleteCategoriesUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { DeleteCategoriesUseCase(data).collect { block(it) } }
 
 
-    private fun loadCategories() = collectCategories { updateState(it) }
+    private fun loadData() = collectData { updateState(listing = it) }
 
-    private fun collectCategories(
+    private fun collectData(
         block: suspend CoroutineScope.(ResState<Map<String, CategoryWithRelationship>>) -> Unit
     ) {
-        listJob?.cancel()
-        listJob = scope.launch { GetCategoriesUseCase().collect { block(it) } }
+        listingJob?.cancel()
+        listingJob = scope.launch { GetCategoriesUseCase().collect { block(it) } }
     }
 
-    private fun openCategory(id: String) {
-        (state.category as? Success)?.data?.let { saveCategories(mapOf(it)) }
-        updateState(page = Page.DETAIL)
-        loadCategory(id)
-    }
 
-    private fun loadCategory(id: String) = collectCategory(id) { updateState(category = it) }
+    private fun loadDetail(id: String) = collectDetail(id) { updateState(detail = it) }
 
-    private fun collectCategory(
+    private fun collectDetail(
         id: String,
         block: suspend CoroutineScope.(ResState<Pair<String, CategoryWithRelationship>>) -> Unit
     ) {
@@ -115,11 +116,13 @@ class CategoriesViewModel @Inject constructor(
 
 
     private fun updateState(
-        categories: ResState<Map<String, CategoryWithRelationship>> = state.categories,
-        category: ResState<Pair<String, CategoryWithRelationship>> = state.category,
+        detail: ResState<Pair<String, CategoryWithRelationship>> = state.detail,
+        listing: ResState<Map<String, CategoryWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(category = category, categories = categories, page = page, snackbar = snackbar) }
+        mutableState.update {
+            it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
+        }
     }
 }

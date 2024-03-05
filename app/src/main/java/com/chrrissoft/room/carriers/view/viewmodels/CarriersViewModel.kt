@@ -7,8 +7,8 @@ import com.chrrissoft.room.carriers.db.objects.CarrierWithRelationship
 import com.chrrissoft.room.carriers.db.usecases.DeleteCarriersUseCase
 import com.chrrissoft.room.carriers.db.usecases.GetCarriersUseCase
 import com.chrrissoft.room.carriers.db.usecases.SaveCarriersUseCase
-import com.chrrissoft.room.carriers.view.events.CarriersEvent
 import com.chrrissoft.room.carriers.view.events.CarriersEvent.OnChange
+import com.chrrissoft.room.carriers.view.events.CarriersEvent.OnChangePage
 import com.chrrissoft.room.carriers.view.events.CarriersEvent.OnCreate
 import com.chrrissoft.room.carriers.view.events.CarriersEvent.OnDelete
 import com.chrrissoft.room.carriers.view.events.CarriersEvent.OnOpen
@@ -18,10 +18,12 @@ import com.chrrissoft.room.carriers.view.viewmodels.CarriersViewModel.EventHandl
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -35,81 +37,92 @@ class CarriersViewModel @Inject constructor(
     private val DeleteCarriersUseCase: DeleteCarriersUseCase,
 ) : BaseViewModel<EventHandler, CarriersState>() {
     override val eventHandler = EventHandler()
-    override val _state = MutableStateFlow(CarriersState())
-    override val stateFlow = _state.asStateFlow()
+    override val mutableState = MutableStateFlow(CarriersState())
+    override val stateFlow = mutableState.asStateFlow()
+
+    private var detailJob: Job? = null
+    private var listingJob: Job? = null
 
     init {
-        loadCarriers()
+        loadData()
     }
 
     inner class EventHandler : BaseEventHandler() {
-        fun onEvent(event: OnOpen) = openCarrier(event.data)
-
-        fun onEvent(event: OnSave) = saveCarriers(mapOf(event.data))
-
+        fun onEvent(event: OnSave) = save(event.data)
+        fun onEvent(event: OnOpen) = open(event.data)
         fun onEvent(event: OnCreate) = create(event.data)
-
-        fun onEvent(event: OnChange) = updateState(carrier = Success(event.data))
-
-        fun onEvent(event: OnDelete) = deleteCarriers(event.data.mapValues { it.value.carrier })
-        fun onEvent(event: CarriersEvent.OnChangePage) = updateState(page = event.data)
+        fun onEvent(event: OnChange) = change(event.data)
+        fun onEvent(event: OnDelete) = delete(event.data)
+        fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
+    private fun save(data: Map<String, CarrierWithRelationship>) {
+        save(data.map { it.value.carrier }) {  }
+    }
+
+    private fun open(data: Pair<String, CarrierWithRelationship>) {
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+        loadDetail(data.first)
+    }
 
     private fun create(data: Pair<String, CarrierWithRelationship>) {
-        (state.carrier as? Success)?.data?.let { saveCarriers(mapOf(it)) }
-        updateState(carrier = Success(data), page = Page.DETAIL)
+        detailJob?.cancel()
+        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(detail = Success(data), page = DETAIL)
+    }
+
+    private fun change(data: Pair<String, CarrierWithRelationship>) {
+        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    }
+
+    private fun delete(data: Map<String, CarrierWithRelationship>) {
+        updateState(listing = state.listing.map { it.minus(data.keys) })
+        delete(data.map { it.value.carrier }) { }
     }
 
 
-    private fun saveCarriers(data: Map<String, CarrierWithRelationship>) {
-        updateState(carriers = state.carriers.map { it + data })
-        saveCarriers(data) { updateState() }
-    }
-
-    private fun saveCarriers(
-        data: Map<String, CarrierWithRelationship>,
+    private fun save(
+        data: List<Carrier>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { SaveCarriersUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { SaveCarriersUseCase(data).collect { block(it) } }
 
 
-    private fun deleteCarriers(data: Map<String, Carrier>) {
-        updateState(carriers = state.carriers.map { it.minus(data.keys) })
-        deleteCarriers(data) { updateState() }
-    }
-
-    private fun deleteCarriers(
-        data: Map<String, Carrier>,
+    private fun delete(
+        data: List<Carrier>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { DeleteCarriersUseCase(data.map { it.value }).collect { block(it) } }
+    ) = scope.launch { DeleteCarriersUseCase(data).collect { block(it) } }
 
 
-    private fun loadCarriers() = collectCarriers { updateState(carriers = it) }
+    private fun loadData() = collectData { updateState(listing = it) }
 
-    private fun collectCarriers(
+    private fun collectData(
         block: suspend CoroutineScope.(ResState<Map<String, CarrierWithRelationship>>) -> Unit
-    ) = scope.launch { GetCarriersUseCase().collect { block(it) } }
-
-
-    private fun openCarrier(id: String) {
-        updateState(page = Page.DETAIL)
-        loadCarrier(id)
+    ) {
+        listingJob?.cancel()
+        listingJob = scope.launch { GetCarriersUseCase().collect { block(it) } }
     }
 
-    private fun loadCarrier(id: String) = collectCarrier(id) { updateState(it) }
 
-    private fun collectCarrier(
+    private fun loadDetail(id: String) = collectDetail(id) { updateState(detail = it) }
+
+    private fun collectDetail(
         id: String,
         block: suspend CoroutineScope.(ResState<Pair<String, CarrierWithRelationship>>) -> Unit
-    ) = scope.launch { GetCarriersUseCase(id).collect { block(it) } }
+    ) {
+        detailJob?.cancel()
+        detailJob = scope.launch { GetCarriersUseCase(id).collect { block(it) } }
+    }
 
 
     private fun updateState(
-        carrier: ResState<Pair<String, CarrierWithRelationship>> = state.carrier,
-        carriers: ResState<Map<String, CarrierWithRelationship>> = state.carriers,
-        page:Page = state.page,
+        detail: ResState<Pair<String, CarrierWithRelationship>> = state.detail,
+        listing: ResState<Map<String, CarrierWithRelationship>> = state.listing,
+        page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,
     ) {
-        _state.update { it.copy(carrier = carrier, carriers = carriers, page = page, snackbar = snackbar) }
+        mutableState.update {
+            it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
+        }
     }
 }

@@ -23,22 +23,22 @@ fun CarriersScreen(
         page = state.page,
         title = "Carriers",
         onChangePage = { onEvent(CarriersEvent.OnChangePage(it)) },
-        onSave = { state.carrier.getSuccess()?.let { onEvent(CarriersEvent.OnSave(it)) } },
+        onSave = { state.detail.getSuccess()?.let { onEvent(CarriersEvent.OnSave(it)) } },
         onCreate = { onEvent(CarriersEvent.OnCreate(it to CarrierWithRelationship(Carrier(it)))) },
         onNavigation = onOpenDrawer,
         details = {
             CarrierWithRelationship(
-                state = state.carrier,
+                state = state.detail,
                 onStateChange = { onEvent(CarriersEvent.OnChange(it)) },
-                cities = citiesState.cities,
+                cities = citiesState.listing,
             )
         },
         list = {
             CarriersList(
-                state = state.carriers,
+                state = state.listing,
                 onDelete = { onEvent(CarriersEvent.OnDelete(it)) },
-                selected = setOf(),
-                onSelect = { onEvent(CarriersEvent.OnOpen(it.first)) },
+                selected = setOf(state.detail.getSuccess()?.first),
+                onSelect = { onEvent(CarriersEvent.OnOpen(it)) },
             )
         },
         snackbarHost = { AlarmManagerSnackbar(state = state.snackbar) }
