@@ -3,6 +3,7 @@ package com.chrrissoft.room.cities.view.viewmodels
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
 import com.chrrissoft.room.cities.db.objects.City
+import com.chrrissoft.room.cities.db.objects.CityWithNestedRelationship
 import com.chrrissoft.room.cities.db.objects.CityWithRelationship
 import com.chrrissoft.room.cities.db.usecases.DeleteCitiesUseCase
 import com.chrrissoft.room.cities.db.usecases.GetCitiesUseCase
@@ -56,24 +57,24 @@ class CitiesViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, CityWithRelationship>) {
+    private fun save(data: Map<String, CityWithNestedRelationship>) {
         save(data.map { it.value.city }) {  }
     }
 
     private fun open(data: Pair<String, CityWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, CityWithRelationship>) {
+    private fun create(data: Pair<String, CityWithNestedRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, CityWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, CityWithNestedRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, CityWithRelationship>) {
@@ -108,7 +109,7 @@ class CitiesViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, CityWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, CityWithNestedRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetCitiesUseCase(id).collect { block(it) } }
@@ -116,7 +117,7 @@ class CitiesViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, CityWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, CityWithNestedRelationship>> = state.detail,
         listing: ResState<Map<String, CityWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

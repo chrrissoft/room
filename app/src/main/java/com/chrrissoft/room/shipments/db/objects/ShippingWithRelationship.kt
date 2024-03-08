@@ -8,7 +8,7 @@ import com.chrrissoft.room.orders.db.objects.Order
 data class ShippingWithRelationship(
     @Embedded val shipping: Shipping,
     @Relation(parentColumn = "carrier_id", entityColumn = "id")
-    val carrier: Carrier = Carrier.invalid,
+    val carrier: Carrier? = null,
     @Relation(parentColumn = "id", entityColumn = "shipping_id")
     val orders: List<Order> = emptyList(),
 )

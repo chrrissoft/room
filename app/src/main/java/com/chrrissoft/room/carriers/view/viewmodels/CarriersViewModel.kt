@@ -3,6 +3,7 @@ package com.chrrissoft.room.carriers.view.viewmodels
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
 import com.chrrissoft.room.carriers.db.objects.Carrier
+import com.chrrissoft.room.carriers.db.objects.CarrierWithNestedRelationship
 import com.chrrissoft.room.carriers.db.objects.CarrierWithRelationship
 import com.chrrissoft.room.carriers.db.usecases.DeleteCarriersUseCase
 import com.chrrissoft.room.carriers.db.usecases.GetCarriersUseCase
@@ -56,24 +57,24 @@ class CarriersViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, CarrierWithRelationship>) {
+    private fun save(data: Map<String, CarrierWithNestedRelationship>) {
         save(data.map { it.value.carrier }) {  }
     }
 
     private fun open(data: Pair<String, CarrierWithRelationship>) {
-        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+//        (state.detail as? Success)?.data?.let { save(mapOf(it)) }
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, CarrierWithRelationship>) {
+    private fun create(data: Pair<String, CarrierWithNestedRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, CarrierWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, CarrierWithNestedRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, CarrierWithRelationship>) {
@@ -108,7 +109,7 @@ class CarriersViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, CarrierWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, CarrierWithNestedRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetCarriersUseCase(id).collect { block(it) } }
@@ -116,7 +117,7 @@ class CarriersViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, CarrierWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, CarrierWithNestedRelationship>> = state.detail,
         listing: ResState<Map<String, CarrierWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

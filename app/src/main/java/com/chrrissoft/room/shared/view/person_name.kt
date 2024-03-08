@@ -17,15 +17,15 @@ fun PersonName(
 ) {
     Column(modifier) {
         RoomTextField(
-            value = state.firstName,
+            value = state.first,
             label = "First name",
-            onValueChange = { onStateChange(state.copy(firstName = it)) },
+            onValueChange = { onStateChange(state.copy(first = it)) },
         )
         Spacer(modifier = Modifier.height(10.dp))
         RoomTextField(
-            value = state. middleName,
+            value = state. middle,
             label = "Middle name",
-            onValueChange = { onStateChange(state.copy(middleName = it)) },
+            onValueChange = { onStateChange(state.copy(middle = it)) },
         )
         Spacer(modifier = Modifier.height(10.dp))
         RoomTextField(

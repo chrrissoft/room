@@ -14,13 +14,13 @@ import com.chrrissoft.room.shared.db.PersonName
     parentColumns = ["id"],
     childColumns = ["city_id"],
     onUpdate = ForeignKey.CASCADE,
-    onDelete = ForeignKey.RESTRICT,
+    onDelete = ForeignKey.SET_NULL,
 )])
 data class Costumer(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
     @Embedded val name: PersonName = PersonName(),
-    @ColumnInfo(name = "city_id") val cityId: String = "",
+    @ColumnInfo(name = "city_id") val cityId: String? = null,
 ) {
     companion object {
         val invalid = Costumer("")

@@ -2,7 +2,12 @@ package com.chrrissoft.room.shipments.view.viewmodels
 
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
+import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.app.ResState.Success
+import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.shipments.db.objects.Shipping
+import com.chrrissoft.room.shipments.db.objects.ShippingWithNestedRelationship
 import com.chrrissoft.room.shipments.db.objects.ShippingWithRelationship
 import com.chrrissoft.room.shipments.db.usecases.DeleteShipmentsUseCase
 import com.chrrissoft.room.shipments.db.usecases.GetShipmentsUseCase
@@ -13,14 +18,12 @@ import com.chrrissoft.room.shipments.view.events.ShipmentsEvent.OnCreate
 import com.chrrissoft.room.shipments.view.events.ShipmentsEvent.OnDelete
 import com.chrrissoft.room.shipments.view.events.ShipmentsEvent.OnOpen
 import com.chrrissoft.room.shipments.view.events.ShipmentsEvent.OnSave
+import com.chrrissoft.room.shipments.view.events.ShipmentsEvent.OnSaveRaw
 import com.chrrissoft.room.shipments.view.states.ShipmentsState
 import com.chrrissoft.room.shipments.view.viewmodels.ShipmentsViewModel.EventHandler
-import com.chrrissoft.room.shared.app.ResState
-import com.chrrissoft.room.shared.app.ResState.Success
-import com.chrrissoft.room.shared.view.Page
-import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
+import com.chrrissoft.room.utils.Utils.debug
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -54,26 +57,27 @@ class ShipmentsViewModel @Inject constructor(
         fun onEvent(event: OnChange) = change(event.data)
         fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
+        fun onEvent(event: OnSaveRaw) = save(event.data.map { it.value }) {}
     }
 
-    private fun save(data: Map<String, ShippingWithRelationship>) {
+    private fun save(data: Map<String, ShippingWithNestedRelationship>) {
         save(data.map { it.value.shipping }) {  }
     }
 
     private fun open(data: Pair<String, ShippingWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, ShippingWithRelationship>) {
+    private fun create(data: Pair<String, ShippingWithNestedRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, ShippingWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, ShippingWithNestedRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, ShippingWithRelationship>) {
@@ -85,7 +89,7 @@ class ShipmentsViewModel @Inject constructor(
     private fun save(
         data: List<Shipping>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { SaveShipmentsUseCase(data).collect { block(it) } }
+    ) = scope.launch { SaveShipmentsUseCase(data).collect { debug(("delete $it")); block(it) } }
 
 
     private fun delete(
@@ -108,7 +112,7 @@ class ShipmentsViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, ShippingWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, ShippingWithNestedRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetShipmentsUseCase(id).collect { block(it) } }
@@ -116,7 +120,7 @@ class ShipmentsViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, ShippingWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, ShippingWithNestedRelationship>> = state.detail,
         listing: ResState<Map<String, ShippingWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

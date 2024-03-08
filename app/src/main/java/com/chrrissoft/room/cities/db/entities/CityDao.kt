@@ -6,13 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.chrrissoft.room.cities.db.objects.City
+import com.chrrissoft.room.cities.db.objects.CityWithNestedRelationship
 import com.chrrissoft.room.cities.db.objects.CityWithRelationship
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CityDao {
     @Query("SELECT * FROM cities WHERE id = :id")
-    fun get(id: String) : Flow<CityWithRelationship>
+    fun get(id: String) : Flow<CityWithNestedRelationship>
 
     @Query("SELECT * FROM cities")
     fun get() : Flow<List<CityWithRelationship>>

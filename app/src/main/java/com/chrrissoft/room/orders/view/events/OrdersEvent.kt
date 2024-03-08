@@ -1,6 +1,7 @@
 package com.chrrissoft.room.orders.view.events
 
 import com.chrrissoft.room.base.view.event.BaseEvent
+import com.chrrissoft.room.orders.db.objects.OrderWithNestedRelationship
 import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
 import com.chrrissoft.room.orders.view.viewmodels.OrdersViewModel.EventHandler
 import com.chrrissoft.room.shared.view.Page
@@ -19,13 +20,13 @@ sealed interface OrdersEvent : BaseEvent<EventHandler> {
 
     data class OnOpen(val data: Pair<String, OrderWithRelationship>) : OrdersEvent
 
-    data class OnSave(val data: Map<String, OrderWithRelationship>) : OrdersEvent {
-        constructor(data: Pair<String, OrderWithRelationship>) : this(mapOf(data))
+    data class OnSave(val data: Map<String, OrderWithNestedRelationship>) : OrdersEvent {
+        constructor(data: Pair<String, OrderWithNestedRelationship>) : this(mapOf(data))
     }
 
-    data class OnCreate(val data: Pair<String, OrderWithRelationship>) : OrdersEvent
+    data class OnCreate(val data: Pair<String, OrderWithNestedRelationship>) : OrdersEvent
 
-    data class OnChange(val data: Pair<String, OrderWithRelationship>) : OrdersEvent
+    data class OnChange(val data: Pair<String, OrderWithNestedRelationship>) : OrdersEvent
 
     data class OnDelete(val data: Map<String, OrderWithRelationship>) : OrdersEvent {
         constructor(data: Pair<String, OrderWithRelationship>) : this(mapOf(data))

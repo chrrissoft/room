@@ -6,13 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.chrrissoft.room.countries.db.objects.Country
+import com.chrrissoft.room.countries.db.objects.CountryNestedWithRelationship
 import com.chrrissoft.room.countries.db.objects.CountryWithRelationship
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CountryDao {
     @Query("SELECT * FROM countries WHERE id = :id")
-    fun get(id: String) : Flow<CountryWithRelationship>
+    fun get(id: String) : Flow<CountryNestedWithRelationship>
 
     @Query("SELECT * FROM countries")
     fun get() : Flow<List<CountryWithRelationship>>

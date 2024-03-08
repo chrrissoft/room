@@ -39,7 +39,7 @@ data class Sale(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
     @ColumnInfo(name = "description") val description: String = "",
-    @ColumnInfo(name = "payment_method_id") val payment: Payment = Payment.CASH,
+    @ColumnInfo(name = "payment_method") val payment: Payment = Payment.CASH,
     @ColumnInfo(name = "seller_id") val sellerId: String = "",
     @ColumnInfo(name = "costumer_id") val costumerId: String = "",
     @ColumnInfo(name = "order_id") val orderId: String? = null,

@@ -7,5 +7,5 @@ import com.chrrissoft.room.promotions.db.objects.Promotion
 data class ProductWithRelationship(
     @Embedded val product: Product,
     @Relation(parentColumn = "promotion_id", entityColumn = "id")
-    val promotion: Promotion = Promotion.invalid,
+    val promotion: Promotion? = null,
 )

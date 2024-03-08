@@ -6,13 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.chrrissoft.room.orders.db.objects.Order
+import com.chrrissoft.room.orders.db.objects.OrderWithNestedRelationship
 import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface OrderDao {
     @Query("SELECT * FROM orders WHERE id = :id")
-    fun get(id: String) : Flow<OrderWithRelationship>
+    fun get(id: String) : Flow<OrderWithNestedRelationship>
 
     @Query("SELECT * FROM orders")
     fun get() : Flow<List<OrderWithRelationship>>

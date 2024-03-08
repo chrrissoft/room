@@ -2,34 +2,45 @@ package com.chrrissoft.room.promotions.view.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.chrrissoft.room.categories.db.objects.CategoryWithRelationship
-import com.chrrissoft.room.categories.view.ui.CategoryListSheet
+import com.chrrissoft.room.categories.view.ui.AndOrRemoveCategoryListSheet
 import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
-import com.chrrissoft.room.orders.view.ui.OrderListSheet
+import com.chrrissoft.room.orders.view.ui.AndOrRemoveOrderListSheet
 import com.chrrissoft.room.products.db.objects.ProductWithRelationship
-import com.chrrissoft.room.products.view.ui.ProductListSheet
-import com.chrrissoft.room.promotions.db.objects.PromotionWithRelationship
+import com.chrrissoft.room.products.view.ui.AndOrRemoveProductListSheet
+import com.chrrissoft.room.promotions.db.objects.PromotionNestedWithRelationship
 import com.chrrissoft.room.sales.db.objects.SaleWithRelationship
-import com.chrrissoft.room.sales.view.ui.SaleListSheet
+import com.chrrissoft.room.sales.view.ui.AndOrRemoveSaleListSheet
 import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.shared.view.ResState
 import com.chrrissoft.room.ui.components.RoomDivider
 import com.chrrissoft.room.ui.components.SelectableRoomTextField
 import com.chrrissoft.room.utils.PairUtils.mapSecond
+import com.chrrissoft.room.utils.ResStateUtils.map
 
 @Composable
 fun PromotionWithRelationship(
-    state: ResState<Pair<String, PromotionWithRelationship>>,
-    onStateChange: (Pair<String, PromotionWithRelationship>) -> Unit,
+    state: ResState<Pair<String, PromotionNestedWithRelationship>>,
+    onStateChange: (Pair<String, PromotionNestedWithRelationship>) -> Unit,
     sales: ResState<Map<String, SaleWithRelationship>>,
+    onRemoveSales: (Map<String, SaleWithRelationship>) -> Unit,
+    onAddSales: (Map<String, SaleWithRelationship>) -> Unit,
     products: ResState<Map<String, ProductWithRelationship>>,
-    categories: ResState<Map<String, CategoryWithRelationship>>,
+    onRemoveProducts: (Map<String, ProductWithRelationship>) -> Unit,
+    onAddProducts: (Map<String, ProductWithRelationship>) -> Unit,
     orders: ResState<Map<String, OrderWithRelationship>>,
+    onRemoveOrders: (Map<String, OrderWithRelationship>) -> Unit,
+    onAddOrders: (Map<String, OrderWithRelationship>) -> Unit,
+    categories: ResState<Map<String, CategoryWithRelationship>>,
+    onRemoveCategories: (Map<String, CategoryWithRelationship>) -> Unit,
+    onAddCategories: (Map<String, CategoryWithRelationship>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     ResState(state = state) { pair ->
@@ -38,72 +49,65 @@ fun PromotionWithRelationship(
         var showSales by remember { mutableStateOf(value = false) }
 
         if (showSales) {
-            val selected = remember(data.sales) { data.sales.mapTo(mutableSetOf()) { it.id } }
-            SaleListSheet(
-                state = sales,
-                selected = selected,
-                onSelect = { sale ->
-                    (if (data.sales.contains(sale.second.sale))
-                        data.sales.minus(sale.second.sale)
-                    else data.sales.plus(sale.second.sale))
-                        .let { onStateChange(pair.mapSecond { copy(sales = it) }) }
-                },
-                onDelete = {},
-                onDismissRequest = { showSales = false })
+            AndOrRemoveSaleListSheet(
+                added = Success(data.sales.associateBy { it.sale.id }),
+                available = sales,
+                onRemove = onRemoveSales,
+                onAdd = onAddSales,
+                onDismissRequest = { showSales = false }
+            )
         }
 
 
         var showProducts by remember { mutableStateOf(value = false) }
 
         if (showProducts) {
-            val selected = remember(data.sales) { data.sales.mapTo(mutableSetOf()) { it.id } }
-            ProductListSheet(
-                state = products,
-                selected = selected,
-                onSelect = { sale ->
-                    (if (data.products.contains(sale.second.product))
-                        data.products.minus(sale.second.product)
-                    else data.products.plus(sale.second.product))
-                        .let { onStateChange(pair.mapSecond { copy(products = it) }) }
-                },
-                onDelete = {},
-                onDismissRequest = { showProducts = false })
-        }
+            var availableProducts by remember(products) { mutableStateOf(products) }
+            LaunchedEffect(data.products) {
+                products.map { map -> map.filterNot { data.products.contains(it.value) } }
+                    .let { availableProducts = it }
+            }
 
-
-        var showCategories by remember { mutableStateOf(value = false) }
-
-        if (showCategories) {
-            val selected = remember(data.sales) { data.sales.mapTo(mutableSetOf()) { it.id } }
-            CategoryListSheet(
-                state = categories,
-                selected = selected,
-                onSelect = { sale ->
-                    (if (data.categories.contains(sale.second.category))
-                        data.categories.minus(sale.second.category)
-                    else data.categories.plus(sale.second.category))
-                        .let { onStateChange(pair.mapSecond { copy(categories = it) }) }
-                },
-                onDelete = {},
-                onDismissRequest = { showCategories = false })
+            AndOrRemoveProductListSheet(
+                added = Success(data.products.associateBy { it.product.id }),
+                available = availableProducts,
+                onRemove = onRemoveProducts,
+                onAdd = onAddProducts,
+                onDismissRequest = { showProducts = false }
+            )
         }
 
 
         var showOrders by remember { mutableStateOf(value = false) }
 
         if (showOrders) {
-            val selected = remember(data.sales) { data.sales.mapTo(mutableSetOf()) { it.id } }
-            OrderListSheet(
-                state = orders,
-                selected = selected,
-                onSelect = { sale ->
-                    (if (data.orders.contains(sale.second.order))
-                        data.orders.minus(sale.second.order)
-                    else data.orders.plus(sale.second.order))
-                        .let { onStateChange(pair.mapSecond { copy(orders = it) }) }
-                },
-                onDismissRequest = { showOrders = false })
+            AndOrRemoveOrderListSheet(
+                added = Success(data.orders.associateBy { it.order.id }),
+                available = orders,
+                onRemove = onRemoveOrders,
+                onAdd = onAddOrders,
+                onDismissRequest = { showOrders = false }
+            )
         }
+
+
+        var showCategories by remember { mutableStateOf(value = false) }
+
+        if (showCategories) {
+            var availableCategories by remember(categories) { mutableStateOf(categories) }
+            LaunchedEffect(data.categories) {
+                categories.map { map -> map.filterNot { data.categories.contains(it.value) } }
+                    .let { availableCategories = it }
+            }
+            AndOrRemoveCategoryListSheet(
+                added = Success(data.categories.associateBy { it.category.id }),
+                available = availableCategories,
+                onRemove = onRemoveCategories,
+                onAdd = onAddCategories,
+                onDismissRequest = { showCategories = false }
+            )
+        }
+
 
 
         Column(modifier) {
@@ -115,25 +119,25 @@ fun PromotionWithRelationship(
                 label = "Sales",
                 selected = showSales,
                 onClick = { showSales = true },
-                value = data.sales.map { it.id }.joinToString { ", " },
+                value = data.sales.joinToString(limit = 3) { it.sale.id },
             )
             SelectableRoomTextField(
                 label = "Products",
                 selected = showProducts,
                 onClick = { showProducts = true },
-                value = data.products.map { it.name }.joinToString { ", " },
+                value = data.products.joinToString(limit = 3) { it.product.name },
             )
             SelectableRoomTextField(
                 label = "Categories",
                 selected = showCategories,
                 onClick = { showCategories = true },
-                value = data.categories.map { it.name }.joinToString { ", " },
+                value = data.categories.joinToString(limit = 3) { it.category.name },
             )
             SelectableRoomTextField(
                 label = "Orders",
                 selected = showOrders,
                 onClick = { showOrders = true },
-                value = data.orders.map { it.id }.joinToString { ", " },
+                value = data.orders.joinToString(limit = 3) { it.order.id },
             )
         }
     }

@@ -14,7 +14,7 @@ import com.chrrissoft.room.promotions.db.objects.Promotion
             parentColumns = ["id"],
             childColumns = ["promotion_id"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.RESTRICT,
+            onDelete = ForeignKey.SET_DEFAULT,
         ),
     ]
 )
@@ -23,5 +23,5 @@ data class Product(
     @ColumnInfo(name = "id") val id: String,
     @ColumnInfo(name = "name") val name: String = "",
     @ColumnInfo(name = "description") val description: String = "",
-    @ColumnInfo(name = "promotion_id") val promotionId: String = "",
+    @ColumnInfo(name = "promotion_id", defaultValue = "NULL") val promotionId: String? = "",
 )

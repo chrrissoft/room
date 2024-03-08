@@ -3,7 +3,7 @@ package com.chrrissoft.room.countries.view.screens
 import androidx.compose.runtime.Composable
 import com.chrrissoft.room.cities.view.states.CitiesState
 import com.chrrissoft.room.countries.db.objects.Country
-import com.chrrissoft.room.countries.db.objects.CountryWithRelationship
+import com.chrrissoft.room.countries.db.objects.CountryNestedWithRelationship
 import com.chrrissoft.room.countries.view.events.CountriesEvent
 import com.chrrissoft.room.countries.view.events.CountriesEvent.OnChange
 import com.chrrissoft.room.countries.view.events.CountriesEvent.OnChangePage
@@ -14,6 +14,7 @@ import com.chrrissoft.room.countries.view.events.CountriesEvent.OnSave
 import com.chrrissoft.room.countries.view.states.CountriesState
 import com.chrrissoft.room.countries.view.ui.CountriesList
 import com.chrrissoft.room.countries.view.ui.CountryWithRelationship
+import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.ui.components.CommonScreen
 import com.chrrissoft.room.utils.ResStateUtils.getSuccess
 
@@ -29,13 +30,16 @@ fun CountriesScreen(
         title = "Countries",
         onChangePage = { onEvent(OnChangePage(it)) },
         onSave = { state.detail.getSuccess()?.let { onEvent(OnSave(it)) } },
-        onCreate = { onEvent(OnCreate(it to CountryWithRelationship(Country(it)))) },
+        onCreate = { onEvent(OnCreate(it to CountryNestedWithRelationship(Country(it)))) },
         onNavigation = onOpenDrawer,
         details = {
             CountryWithRelationship(
                 state = state.detail,
-                cities = citiesState.listing,
                 onStateChange = { onEvent(OnChange(it)) },
+                availableCities = ResState.None,
+                addedCities = ResState.None,
+                onRemoveCities = {},
+                onAddCities = {},
             )
         },
         list = {

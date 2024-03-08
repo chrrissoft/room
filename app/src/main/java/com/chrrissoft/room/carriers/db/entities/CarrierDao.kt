@@ -6,13 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.chrrissoft.room.carriers.db.objects.Carrier
+import com.chrrissoft.room.carriers.db.objects.CarrierWithNestedRelationship
 import com.chrrissoft.room.carriers.db.objects.CarrierWithRelationship
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CarrierDao {
     @Query("SELECT * FROM carriers WHERE id = :id")
-    fun get(id: String) : Flow<CarrierWithRelationship>
+    fun get(id: String) : Flow<CarrierWithNestedRelationship>
 
     @Query("SELECT * FROM carriers")
     fun get() : Flow<List<CarrierWithRelationship>>

@@ -3,6 +3,7 @@ package com.chrrissoft.room.sales.view.viewmodels
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
 import com.chrrissoft.room.sales.db.objects.Sale
+import com.chrrissoft.room.sales.db.objects.SaleWithNestedRelationship
 import com.chrrissoft.room.sales.db.objects.SaleWithRelationship
 import com.chrrissoft.room.sales.db.usecases.DeleteSalesUseCase
 import com.chrrissoft.room.sales.db.usecases.GetSalesUseCase
@@ -56,24 +57,24 @@ class SalesViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, SaleWithRelationship>) {
+    private fun save(data: Map<String, SaleWithNestedRelationship>) {
         save(data.map { it.value.sale }) {  }
     }
 
     private fun open(data: Pair<String, SaleWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, SaleWithRelationship>) {
+    private fun create(data: Pair<String, SaleWithNestedRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, SaleWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, SaleWithNestedRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, SaleWithRelationship>) {
@@ -108,7 +109,7 @@ class SalesViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, SaleWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, SaleWithNestedRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetSalesUseCase(id).collect { block(it) } }
@@ -116,7 +117,7 @@ class SalesViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, SaleWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, SaleWithNestedRelationship>> = state.detail,
         listing: ResState<Map<String, SaleWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

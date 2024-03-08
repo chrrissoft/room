@@ -20,7 +20,7 @@ fun SellersList(
     ResStateMap(state = state, modifier) { it ->
         items(it.toList()) {
             SelectableRoomTextField(
-                value = it.second.seller.name.firstName,
+                value = it.second.seller.name.first,
                 selected = selected.contains(it.first),
                 onClick = { onSelect(it) },
                 trailingIcon = if (onDelete == null) null else Delete { onDelete(mapOf(it)) }

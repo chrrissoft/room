@@ -4,8 +4,8 @@ import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 import com.chrrissoft.room.cities.db.objects.City
-import com.chrrissoft.room.common.CostumersAndProducts
-import com.chrrissoft.room.common.CostumersAndShipments
+import com.chrrissoft.room.common.objects.CostumersAndProducts
+import com.chrrissoft.room.common.objects.CostumersAndShipments
 import com.chrrissoft.room.products.db.objects.Product
 import com.chrrissoft.room.sales.db.objects.Sale
 import com.chrrissoft.room.shipments.db.objects.Shipping
@@ -13,7 +13,7 @@ import com.chrrissoft.room.shipments.db.objects.Shipping
 data class CostumerWithRelationship(
     @Embedded val costumer: Costumer,
     @Relation(parentColumn = "city_id", entityColumn = "id")
-    val city: City = City.invalid,
+    val city: City? = null,
     @Relation(parentColumn = "id", entityColumn = "costumer_id")
     val sales: List<Sale> = emptyList(),
     @Relation(

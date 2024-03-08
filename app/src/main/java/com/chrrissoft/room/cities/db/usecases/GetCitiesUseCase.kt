@@ -2,6 +2,7 @@ package com.chrrissoft.room.cities.db.usecases
 
 import com.chrrissoft.room.cities.db.objects.CityWithRelationship
 import com.chrrissoft.room.cities.db.entities.CityDao
+import com.chrrissoft.room.cities.db.objects.CityWithNestedRelationship
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.utils.FlowUtils.ResFlow
@@ -15,7 +16,7 @@ class GetCitiesUseCase @Inject constructor(private val dao: CityDao) {
         }
     }
 
-    operator fun invoke(id: String): Flow<ResState<Pair<String, CityWithRelationship>>> {
+    operator fun invoke(id: String): Flow<ResState<Pair<String, CityWithNestedRelationship>>> {
         return ResFlow { dao.get(id).collect { emit(Success(it.city.id to it)) } }
     }
 }

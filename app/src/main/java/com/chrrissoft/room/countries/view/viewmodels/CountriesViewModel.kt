@@ -3,6 +3,7 @@ package com.chrrissoft.room.countries.view.viewmodels
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
 import com.chrrissoft.room.countries.db.objects.Country
+import com.chrrissoft.room.countries.db.objects.CountryNestedWithRelationship
 import com.chrrissoft.room.countries.db.objects.CountryWithRelationship
 import com.chrrissoft.room.countries.db.usecases.DeleteCountriesUseCase
 import com.chrrissoft.room.countries.db.usecases.GetCountriesUseCase
@@ -56,24 +57,24 @@ class CountriesViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, CountryWithRelationship>) {
+    private fun save(data: Map<String, CountryNestedWithRelationship>) {
         save(data.map { it.value.country }) {  }
     }
 
     private fun open(data: Pair<String, CountryWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, CountryWithRelationship>) {
+    private fun create(data: Pair<String, CountryNestedWithRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, CountryWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, CountryNestedWithRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, CountryWithRelationship>) {
@@ -108,7 +109,7 @@ class CountriesViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, CountryWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, CountryNestedWithRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetCountriesUseCase(id).collect { block(it) } }
@@ -116,7 +117,7 @@ class CountriesViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, CountryWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, CountryNestedWithRelationship>> = state.detail,
         listing: ResState<Map<String, CountryWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

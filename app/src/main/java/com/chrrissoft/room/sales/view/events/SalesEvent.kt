@@ -1,6 +1,7 @@
 package com.chrrissoft.room.sales.view.events
 
 import com.chrrissoft.room.base.view.event.BaseEvent
+import com.chrrissoft.room.sales.db.objects.SaleWithNestedRelationship
 import com.chrrissoft.room.sales.db.objects.SaleWithRelationship
 import com.chrrissoft.room.sales.view.viewmodels.SalesViewModel.EventHandler
 import com.chrrissoft.room.shared.view.Page
@@ -19,13 +20,13 @@ sealed interface SalesEvent : BaseEvent<EventHandler> {
 
     data class OnOpen(val data: Pair<String, SaleWithRelationship>) : SalesEvent
 
-    data class OnSave(val data: Map<String, SaleWithRelationship>) : SalesEvent {
-        constructor(data: Pair<String, SaleWithRelationship>) : this(mapOf(data))
+    data class OnSave(val data: Map<String, SaleWithNestedRelationship>) : SalesEvent {
+        constructor(data: Pair<String, SaleWithNestedRelationship>) : this(mapOf(data))
     }
 
-    data class OnCreate(val data: Pair<String, SaleWithRelationship>) : SalesEvent
+    data class OnCreate(val data: Pair<String, SaleWithNestedRelationship>) : SalesEvent
 
-    data class OnChange(val data: Pair<String, SaleWithRelationship>) : SalesEvent
+    data class OnChange(val data: Pair<String, SaleWithNestedRelationship>) : SalesEvent
 
     data class OnDelete(val data: Map<String, SaleWithRelationship>) : SalesEvent {
         constructor(data: Pair<String, SaleWithRelationship>) : this(mapOf(data))

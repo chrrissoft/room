@@ -3,15 +3,24 @@ package com.chrrissoft.room.categories.view.viewmodels
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
 import com.chrrissoft.room.categories.db.objects.Category
+import com.chrrissoft.room.categories.db.objects.CategoryWithNestedRelationship
 import com.chrrissoft.room.categories.db.objects.CategoryWithRelationship
 import com.chrrissoft.room.categories.db.usecases.DeleteCategoriesUseCase
 import com.chrrissoft.room.categories.db.usecases.GetCategoriesUseCase
 import com.chrrissoft.room.categories.db.usecases.SaveCategoriesUseCase
+import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnAddOrders
+import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnAddPromotions
+import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnAddSales
+import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnAddSuppliers
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnChange
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnChangePage
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnCreate
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnDelete
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnOpen
+import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnRemoveOrders
+import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnRemovePromotions
+import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnRemoveSales
+import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnRemoveSuppliers
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnSave
 import com.chrrissoft.room.categories.view.states.CategoriesState
 import com.chrrissoft.room.categories.view.viewmodels.CategoriesViewModel.EventHandler
@@ -27,7 +36,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -54,26 +62,32 @@ class CategoriesViewModel @Inject constructor(
         fun onEvent(event: OnChange) = change(event.data)
         fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
+        fun onEvent(event: OnAddPromotions) {}
+        fun onEvent(event: OnRemovePromotions) {}
+        fun onEvent(event: OnAddOrders) {}
+        fun onEvent(event: OnAddSales) {}
+        fun onEvent(event: OnAddSuppliers) {}
+        fun onEvent(event: OnRemoveOrders) {}
+        fun onEvent(event: OnRemoveSales) {}
+        fun onEvent(event: OnRemoveSuppliers) {}
     }
 
-    private fun save(data: Map<String, CategoryWithRelationship>) {
-        save(data.map { it.value.category }) {  }
-    }
+    private fun save(data: Map<String, CategoryWithNestedRelationship>) =
+        save(data.map { it.value.category }) { }
 
     private fun open(data: Pair<String, CategoryWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, CategoryWithRelationship>) {
+    private fun create(data: Pair<String, CategoryWithNestedRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, CategoryWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, CategoryWithNestedRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, CategoryWithRelationship>) {
@@ -85,13 +99,13 @@ class CategoriesViewModel @Inject constructor(
     private fun save(
         data: List<Category>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { SaveCategoriesUseCase(data).collect { block(it) } }
+    ) = launch { SaveCategoriesUseCase(data).collect { block(it) } }
 
 
     private fun delete(
         data: List<Category>,
         block: suspend CoroutineScope.(ResState<Any>) -> Unit
-    ) = scope.launch { DeleteCategoriesUseCase(data).collect { block(it) } }
+    ) = launch { DeleteCategoriesUseCase(data).collect { block(it) } }
 
 
     private fun loadData() = collectData { updateState(listing = it) }
@@ -100,7 +114,7 @@ class CategoriesViewModel @Inject constructor(
         block: suspend CoroutineScope.(ResState<Map<String, CategoryWithRelationship>>) -> Unit
     ) {
         listingJob?.cancel()
-        listingJob = scope.launch { GetCategoriesUseCase().collect { block(it) } }
+        listingJob = launch { GetCategoriesUseCase().collect { block(it) } }
     }
 
 
@@ -108,15 +122,15 @@ class CategoriesViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, CategoryWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, CategoryWithNestedRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
-        detailJob = scope.launch { GetCategoriesUseCase(id).collect { block(it) } }
+        detailJob = launch { GetCategoriesUseCase(id).collect { block(it) } }
     }
 
 
     private fun updateState(
-        detail: ResState<Pair<String, CategoryWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, CategoryWithNestedRelationship>> = state.detail,
         listing: ResState<Map<String, CategoryWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

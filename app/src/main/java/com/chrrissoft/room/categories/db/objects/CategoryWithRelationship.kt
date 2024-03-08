@@ -3,10 +3,10 @@ package com.chrrissoft.room.categories.db.objects
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
-import com.chrrissoft.room.common.CategoriesAndOrders
-import com.chrrissoft.room.common.CategoriesAndPromotions
-import com.chrrissoft.room.common.CategoriesAndSales
-import com.chrrissoft.room.common.SuppliersAndCategories
+import com.chrrissoft.room.common.objects.CategoriesAndOrders
+import com.chrrissoft.room.common.objects.CategoriesAndPromotions
+import com.chrrissoft.room.common.objects.CategoriesAndSales
+import com.chrrissoft.room.common.objects.SuppliersAndCategories
 import com.chrrissoft.room.orders.db.objects.Order
 import com.chrrissoft.room.promotions.db.objects.Promotion
 import com.chrrissoft.room.sales.db.objects.Sale

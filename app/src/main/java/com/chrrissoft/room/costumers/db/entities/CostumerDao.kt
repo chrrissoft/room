@@ -6,13 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.chrrissoft.room.costumers.db.objects.Costumer
+import com.chrrissoft.room.costumers.db.objects.CostumerWithNestedRelationship
 import com.chrrissoft.room.costumers.db.objects.CostumerWithRelationship
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CostumerDao {
     @Query("SELECT * FROM costumers WHERE id = :id")
-    fun get(id: String) : Flow<CostumerWithRelationship>
+    fun get(id: String) : Flow<CostumerWithNestedRelationship>
 
     @Query("SELECT * FROM costumers")
     fun get() : Flow<List<CostumerWithRelationship>>

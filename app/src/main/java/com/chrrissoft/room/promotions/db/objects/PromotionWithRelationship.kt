@@ -4,9 +4,9 @@ import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 import com.chrrissoft.room.categories.db.objects.Category
-import com.chrrissoft.room.common.CategoriesAndPromotions
-import com.chrrissoft.room.common.PromotionsAndOrders
-import com.chrrissoft.room.common.SalesAndPromotions
+import com.chrrissoft.room.common.objects.CategoriesAndPromotions
+import com.chrrissoft.room.common.objects.PromotionsAndOrders
+import com.chrrissoft.room.common.objects.SalesAndPromotions
 import com.chrrissoft.room.orders.db.objects.Order
 import com.chrrissoft.room.products.db.objects.Product
 import com.chrrissoft.room.sales.db.objects.Sale

@@ -19,6 +19,7 @@ import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.shared.view.Page.DETAIL
+import com.chrrissoft.room.suppliers.db.objects.SupplierWithNestedRelationship
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -56,24 +57,24 @@ class SuppliersViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, SupplierWithRelationship>) {
+    private fun save(data: Map<String, SupplierWithNestedRelationship>) {
         save(data.map { it.value.supplier }) {  }
     }
 
     private fun open(data: Pair<String, SupplierWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, SupplierWithRelationship>) {
+    private fun create(data: Pair<String, SupplierWithNestedRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, SupplierWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, SupplierWithNestedRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, SupplierWithRelationship>) {
@@ -108,7 +109,7 @@ class SuppliersViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, SupplierWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, SupplierWithNestedRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetSuppliersUseCase(id).collect { block(it) } }
@@ -116,7 +117,7 @@ class SuppliersViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, SupplierWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, SupplierWithNestedRelationship>> = state.detail,
         listing: ResState<Map<String, SupplierWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

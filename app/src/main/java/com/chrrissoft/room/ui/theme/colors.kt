@@ -1,14 +1,11 @@
 package com.chrrissoft.room.ui.theme
 
 import androidx.compose.material3.*
-import androidx.compose.material3.CardDefaults.cardColors
-import androidx.compose.material3.InputChipDefaults.inputChipColors
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.TopAppBarDefaults.centerAlignedTopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Transparent
-import com.chrrissoft.room.ui.components.AlertDialogColors
 import androidx.compose.material3.NavigationBarItemDefaults.colors as navigationBarItemColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -42,34 +39,6 @@ val navigationDrawerItemColors
             unselectedIconColor = colorScheme.primary,
             selectedTextColor = colorScheme.onPrimary,
             unselectedTextColor = colorScheme.primary,
-        )
-    }
-
-@OptIn(ExperimentalMaterial3Api::class)
-val inputChipColors
-    @Composable get() = run {
-        inputChipColors(
-            containerColor = colorScheme.primaryContainer,
-            labelColor = colorScheme.primary,
-            leadingIconColor = colorScheme.primary,
-            trailingIconColor = colorScheme.primary,
-            disabledContainerColor = colorScheme.primaryContainer.copy(.5f),
-            disabledLabelColor = colorScheme.secondary.copy(.5f),
-            disabledLeadingIconColor = colorScheme.secondary.copy(.5f),
-            disabledTrailingIconColor = colorScheme.secondary.copy(.5f),
-            selectedContainerColor = colorScheme.primary,
-            disabledSelectedContainerColor = colorScheme.errorContainer,
-            selectedLabelColor = colorScheme.onPrimary,
-            selectedLeadingIconColor = colorScheme.onPrimary,
-            selectedTrailingIconColor = colorScheme.onPrimary,
-        )
-    }
-
-val cardColors
-    @Composable get() = run {
-        cardColors(
-            containerColor = colorScheme.primaryContainer,
-            contentColor = colorScheme.onPrimaryContainer,
         )
     }
 
@@ -128,15 +97,3 @@ fun selectableTextFieldColors(selected: Boolean): TextFieldColors {
         disabledContainerColor = if (selected) colorScheme.primary else colorScheme.primaryContainer,
     )
 }
-
-val alertDialogColors
-    @Composable get() = run {
-        AlertDialogColors.colors(
-            containerColor = colorScheme.primaryContainer,
-            iconContentColor = colorScheme.onPrimaryContainer,
-            titleContentColor = colorScheme.onPrimaryContainer,
-            textContentColor = colorScheme.onPrimaryContainer,
-        )
-    }
-
-

@@ -3,6 +3,7 @@ package com.chrrissoft.room.promotions.view.viewmodels
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
 import com.chrrissoft.room.promotions.db.objects.Promotion
+import com.chrrissoft.room.promotions.db.objects.PromotionNestedWithRelationship
 import com.chrrissoft.room.promotions.db.objects.PromotionWithRelationship
 import com.chrrissoft.room.promotions.db.usecases.DeletePromotionsUseCase
 import com.chrrissoft.room.promotions.db.usecases.GetPromotionsUseCase
@@ -56,24 +57,24 @@ class PromotionsViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, PromotionWithRelationship>) {
+    private fun save(data: Map<String, PromotionNestedWithRelationship>) {
         save(data.map { it.value.promotion }) {  }
     }
 
     private fun open(data: Pair<String, PromotionWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, PromotionWithRelationship>) {
+    private fun create(data: Pair<String, PromotionNestedWithRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, PromotionWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, PromotionNestedWithRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, PromotionWithRelationship>) {
@@ -108,7 +109,7 @@ class PromotionsViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, PromotionWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, PromotionNestedWithRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetPromotionsUseCase(id).collect { block(it) } }
@@ -116,7 +117,7 @@ class PromotionsViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, PromotionWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, PromotionNestedWithRelationship>> = state.detail,
         listing: ResState<Map<String, PromotionWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

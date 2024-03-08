@@ -9,10 +9,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.chrrissoft.room.cities.db.objects.CityWithRelationship
 import com.chrrissoft.room.cities.view.ui.CitiesListSheet
-import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
+import com.chrrissoft.room.orders.db.objects.OrderWithNestedRelationship
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.view.ResState
 import com.chrrissoft.room.shipments.db.objects.ShippingWithRelationship
+import com.chrrissoft.room.shipments.view.ui.AndOrRemoveShippingListSheet
 import com.chrrissoft.room.shipments.view.ui.ShippingListSheet
 import com.chrrissoft.room.ui.components.RoomDivider
 import com.chrrissoft.room.ui.components.SelectableRoomTextField
@@ -20,10 +21,10 @@ import com.chrrissoft.room.utils.PairUtils.mapSecond
 
 @Composable
 fun OrderWithRelationship(
-    state: ResState<Pair<String, OrderWithRelationship>>,
-    onStateChange: (Pair<String, OrderWithRelationship>) -> Unit,
+    state: ResState<Pair<String, OrderWithNestedRelationship>>,
+    onStateChange: (Pair<String, OrderWithNestedRelationship>) -> Unit,
     cities: ResState<Map<String, CityWithRelationship>>,
-    shipments: ResState<Map<String, ShippingWithRelationship>>,
+    shipments : ResState<Map<String, ShippingWithRelationship>>,
     modifier: Modifier = Modifier,
 ) {
     ResState(state = state) { pair ->
@@ -32,10 +33,10 @@ fun OrderWithRelationship(
         if (showCities) {
             CitiesListSheet(
                 state = cities,
-                selected = setOf(pair.second.city.id),
+                selected = setOf(pair.second.city.city.id),
                 onSelect = {
                     val order = pair.second.order.copy(cityId = it.first)
-                    pair.mapSecond { copy(order = order, city = it.second.city) }
+                    pair.mapSecond { copy(order = order, city = it.second) }
                         .let(onStateChange)
                 },
                 onDismissRequest = { showCities = false })
@@ -47,10 +48,10 @@ fun OrderWithRelationship(
         if (showShipments) {
             ShippingListSheet(
                 state = shipments,
-                selected = setOf(pair.second.shipping.id),
+                selected = setOf(pair.second.shipping?.shipping?.id),
                 onSelect = {
                     val order = pair.second.order.copy(shippingId = it.first)
-                    pair.mapSecond { copy(order = order, shipping = it.second.shipping) }
+                    pair.mapSecond { copy(order = order, shipping = it.second) }
                         .let(onStateChange)
                 },
                 onDismissRequest = { showShipments = false })
@@ -64,13 +65,13 @@ fun OrderWithRelationship(
             RoomDivider()
             SelectableRoomTextField(
                 label = "City",
-                value = pair.second.city.name,
+                value = pair.second.city.city.name,
                 selected = showCities,
                 onClick = { showCities = true }
             )
             SelectableRoomTextField(
                 label = "Shipment",
-                value = pair.second.shipping.state.name,
+                value = pair.second.shipping?.shipping?.state?.name ?: "No Shipment",
                 selected = showShipments,
                 onClick = { showShipments = true }
             )

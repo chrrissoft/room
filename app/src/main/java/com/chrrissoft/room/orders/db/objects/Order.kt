@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.chrrissoft.room.cities.db.objects.City
-import com.chrrissoft.room.common.Direction
+import com.chrrissoft.room.common.objects.Direction
 import com.chrrissoft.room.sales.db.objects.Sale
 import com.chrrissoft.room.shipments.db.objects.Shipping
 
@@ -32,7 +32,7 @@ import com.chrrissoft.room.shipments.db.objects.Shipping
             parentColumns = ["id"],
             childColumns = ["shipping_id"],
             onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.RESTRICT,
+            onDelete = ForeignKey.SET_DEFAULT,
         ),
     ]
 )
@@ -41,7 +41,7 @@ data class Order(
     @ColumnInfo(name = "id") val id: String,
     @Embedded val direction: Direction = Direction(),
     @ColumnInfo(name = "city_id") val cityId: String = "",
-    @ColumnInfo(name = "shipping_id") val shippingId: String = "",
+    @ColumnInfo(name = "shipping_id", defaultValue = "NULL") val shippingId: String? = "",
 ) {
     companion object {
         val invalid = Order("")

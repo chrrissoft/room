@@ -2,6 +2,7 @@ package com.chrrissoft.room.carriers.db.usecases
 
 import com.chrrissoft.room.carriers.db.objects.CarrierWithRelationship
 import com.chrrissoft.room.carriers.db.entities.CarrierDao
+import com.chrrissoft.room.carriers.db.objects.CarrierWithNestedRelationship
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.utils.FlowUtils.ResFlow
@@ -15,7 +16,7 @@ class GetCarriersUseCase @Inject constructor(private val dao: CarrierDao) {
         }
     }
 
-    operator fun invoke(id: String): Flow<ResState<Pair<String, CarrierWithRelationship>>> {
+    operator fun invoke(id: String): Flow<ResState<Pair<String, CarrierWithNestedRelationship>>> {
         return ResFlow { dao.get(id).collect { emit(Success(it.carrier.id to it)) } }
     }
 }

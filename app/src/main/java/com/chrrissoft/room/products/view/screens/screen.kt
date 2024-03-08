@@ -2,12 +2,13 @@ package com.chrrissoft.room.products.view.screens
 
 import androidx.compose.runtime.Composable
 import com.chrrissoft.room.products.db.objects.Product
-import com.chrrissoft.room.products.db.objects.ProductWithRelationship
+import com.chrrissoft.room.products.db.objects.ProductWithNestedRelationship
 import com.chrrissoft.room.products.view.events.ProductsEvent
 import com.chrrissoft.room.products.view.states.ProductsState
 import com.chrrissoft.room.products.view.ui.ProductList
 import com.chrrissoft.room.products.view.ui.ProductWithRelationship
 import com.chrrissoft.room.promotions.view.states.PromotionsState
+import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.ui.components.AlarmManagerSnackbar
 import com.chrrissoft.room.ui.components.CommonScreen
 import com.chrrissoft.room.utils.ResStateUtils.getSuccess
@@ -24,13 +25,13 @@ fun ProductsScreen(
         title = "Products",
         onChangePage = { onEvent(ProductsEvent.OnChangePage(it)) },
         onSave = { state.detail.getSuccess()?.let { onEvent(ProductsEvent.OnSave(it)) } },
-        onCreate = { onEvent(ProductsEvent.OnCreate(it to ProductWithRelationship(Product(it)))) },
+        onCreate = { onEvent(ProductsEvent.OnCreate(it to ProductWithNestedRelationship(Product(it)))) },
         onNavigation = onOpenDrawer,
         details = {
             ProductWithRelationship(
                 state = state.detail,
-                onStateChange = { onEvent(ProductsEvent.OnChange(it)) },
                 promotions = promotionsState.listing,
+                onStateChange = { onEvent(ProductsEvent.OnChange(it)) },
             )
         },
         list = {

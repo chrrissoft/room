@@ -44,9 +44,7 @@ abstract class BaseViewModel<H : BaseEventHandler, S : BaseState> : ViewModel() 
         context: CoroutineContext = EmptyCoroutineContext,
         start: CoroutineStart = CoroutineStart.DEFAULT,
         block: suspend CoroutineScope.() -> Unit
-    ) {
-        scope.launch(context, start, block)
-    }
+    ) = scope.launch(context, start, block)
 
     fun showSnackbar(message: String) {
         state.snackbar.state.show(scope, message)

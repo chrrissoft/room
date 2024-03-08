@@ -2,6 +2,7 @@ package com.chrrissoft.room.countries.db.usecases
 
 import com.chrrissoft.room.countries.db.objects.CountryWithRelationship
 import com.chrrissoft.room.countries.db.entities.CountryDao
+import com.chrrissoft.room.countries.db.objects.CountryNestedWithRelationship
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.utils.FlowUtils.ResFlow
@@ -15,7 +16,7 @@ class GetCountriesUseCase @Inject constructor(private val dao: CountryDao) {
         }
     }
 
-    operator fun invoke(id: String): Flow<ResState<Pair<String, CountryWithRelationship>>> {
+    operator fun invoke(id: String): Flow<ResState<Pair<String, CountryNestedWithRelationship>>> {
         return ResFlow { dao.get(id).collect { emit(Success(it.country.id to it)) } }
     }
 }

@@ -3,6 +3,7 @@ package com.chrrissoft.room.products.view.viewmodels
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
 import com.chrrissoft.room.products.db.objects.Product
+import com.chrrissoft.room.products.db.objects.ProductWithNestedRelationship
 import com.chrrissoft.room.products.db.objects.ProductWithRelationship
 import com.chrrissoft.room.products.db.usecases.DeleteProductsUseCase
 import com.chrrissoft.room.products.db.usecases.GetProductsUseCase
@@ -56,24 +57,24 @@ class ProductsViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, ProductWithRelationship>) {
+    private fun save(data: Map<String, ProductWithNestedRelationship>) {
         save(data.map { it.value.product }) {  }
     }
 
     private fun open(data: Pair<String, ProductWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, ProductWithRelationship>) {
+    private fun create(data: Pair<String, ProductWithNestedRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, ProductWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, ProductWithNestedRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, ProductWithRelationship>) {
@@ -108,7 +109,7 @@ class ProductsViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, ProductWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, ProductWithNestedRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetProductsUseCase(id).collect { block(it) } }
@@ -116,7 +117,7 @@ class ProductsViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, ProductWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, ProductWithNestedRelationship>> = state.detail,
         listing: ResState<Map<String, ProductWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

@@ -3,6 +3,7 @@ package com.chrrissoft.room.costumers.view.viewmodels
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
 import com.chrrissoft.room.costumers.db.objects.Costumer
+import com.chrrissoft.room.costumers.db.objects.CostumerWithNestedRelationship
 import com.chrrissoft.room.costumers.db.objects.CostumerWithRelationship
 import com.chrrissoft.room.costumers.db.usecases.DeleteCostumersUseCase
 import com.chrrissoft.room.costumers.db.usecases.GetCostumersUseCase
@@ -56,24 +57,24 @@ class CostumersViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, CostumerWithRelationship>) {
+    private fun save(data: Map<String, CostumerWithNestedRelationship>) {
         save(data.map { it.value.costumer }) {  }
     }
 
     private fun open(data: Pair<String, CostumerWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, CostumerWithRelationship>) {
+    private fun create(data: Pair<String, CostumerWithNestedRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, CostumerWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, CostumerWithNestedRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, CostumerWithRelationship>) {
@@ -108,7 +109,7 @@ class CostumersViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, CostumerWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, CostumerWithNestedRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetCostumersUseCase(id).collect { block(it) } }
@@ -116,7 +117,7 @@ class CostumersViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, CostumerWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, CostumerWithNestedRelationship>> = state.detail,
         listing: ResState<Map<String, CostumerWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

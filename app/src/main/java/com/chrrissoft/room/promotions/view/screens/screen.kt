@@ -5,8 +5,14 @@ import com.chrrissoft.room.categories.view.states.CategoriesState
 import com.chrrissoft.room.orders.view.states.OrdersState
 import com.chrrissoft.room.products.view.states.ProductsState
 import com.chrrissoft.room.promotions.db.objects.Promotion
-import com.chrrissoft.room.promotions.db.objects.PromotionWithRelationship
+import com.chrrissoft.room.promotions.db.objects.PromotionNestedWithRelationship
 import com.chrrissoft.room.promotions.view.events.PromotionsEvent
+import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnChange
+import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnChangePage
+import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnCreate
+import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnDelete
+import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnOpen
+import com.chrrissoft.room.promotions.view.events.PromotionsEvent.OnSave
 import com.chrrissoft.room.promotions.view.states.PromotionsState
 import com.chrrissoft.room.promotions.view.ui.PromotionList
 import com.chrrissoft.room.promotions.view.ui.PromotionWithRelationship
@@ -28,26 +34,34 @@ fun PromotionsScreen(
     CommonScreen(
         page = state.page,
         title = "Promotions",
-        onChangePage = { onEvent(PromotionsEvent.OnChangePage(it)) },
-        onSave = { state.detail.getSuccess()?.let { onEvent(PromotionsEvent.OnSave(it)) } },
-        onCreate = { onEvent(PromotionsEvent.OnCreate(it to PromotionWithRelationship(Promotion(it)))) },
+        onChangePage = { onEvent(OnChangePage(it)) },
+        onSave = { state.detail.getSuccess()?.let { onEvent(OnSave(it)) } },
+        onCreate = { onEvent(OnCreate(it to PromotionNestedWithRelationship(Promotion(it)))) },
         onNavigation = onOpenDrawer,
         details = {
             PromotionWithRelationship(
                 state = state.detail,
-                onStateChange = { onEvent(PromotionsEvent.OnChange(it)) },
+                onStateChange = { onEvent(OnChange(it)) },
                 sales = salesState.listing,
+                onRemoveSales = {},
+                onAddSales = {},
                 products = productsState.listing,
-                categories = categoriesState.listing,
+                onRemoveProducts = {},
+                onAddProducts = {},
                 orders = ordersState.listing,
+                onRemoveOrders = {},
+                onAddOrders = {},
+                categories = categoriesState.listing,
+                onRemoveCategories = {},
+                onAddCategories = {},
             )
         },
         list = {
             PromotionList(
                 state = state.listing,
-                onDelete = { onEvent(PromotionsEvent.OnDelete(it)) },
+                onDelete = { onEvent(OnDelete(it)) },
                 selected = setOf(state.detail.getSuccess()?.first),
-                onSelect = { onEvent(PromotionsEvent.OnOpen(it)) },
+                onSelect = { onEvent(OnOpen(it)) },
             )
         },
         snackbarHost = { AlarmManagerSnackbar(state = state.snackbar) }

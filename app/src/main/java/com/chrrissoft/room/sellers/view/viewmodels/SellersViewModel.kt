@@ -3,6 +3,7 @@ package com.chrrissoft.room.sellers.view.viewmodels
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
 import com.chrrissoft.room.sellers.db.objects.Seller
+import com.chrrissoft.room.sellers.db.objects.SellerWithNestedRelationship
 import com.chrrissoft.room.sellers.db.objects.SellerWithRelationship
 import com.chrrissoft.room.sellers.db.usecases.DeleteSellersUseCase
 import com.chrrissoft.room.sellers.db.usecases.GetSellersUseCase
@@ -56,24 +57,24 @@ class SellersViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, SellerWithRelationship>) {
+    private fun save(data: Map<String, SellerWithNestedRelationship>) {
         save(data.map { it.value.seller }) {  }
     }
 
     private fun open(data: Pair<String, SellerWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        updateState(detail = Success(data), page = DETAIL)
+        updateState(page = DETAIL)
         loadDetail(data.first)
     }
 
-    private fun create(data: Pair<String, SellerWithRelationship>) {
+    private fun create(data: Pair<String, SellerWithNestedRelationship>) {
         detailJob?.cancel()
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
         updateState(detail = Success(data), page = DETAIL)
     }
 
-    private fun change(data: Pair<String, SellerWithRelationship>) {
-        updateState(detail = Success(data), listing = state.listing.map { it + data })
+    private fun change(data: Pair<String, SellerWithNestedRelationship>) {
+        updateState(detail = Success(data))
     }
 
     private fun delete(data: Map<String, SellerWithRelationship>) {
@@ -108,7 +109,7 @@ class SellersViewModel @Inject constructor(
 
     private fun collectDetail(
         id: String,
-        block: suspend CoroutineScope.(ResState<Pair<String, SellerWithRelationship>>) -> Unit
+        block: suspend CoroutineScope.(ResState<Pair<String, SellerWithNestedRelationship>>) -> Unit
     ) {
         detailJob?.cancel()
         detailJob = scope.launch { GetSellersUseCase(id).collect { block(it) } }
@@ -116,7 +117,7 @@ class SellersViewModel @Inject constructor(
 
 
     private fun updateState(
-        detail: ResState<Pair<String, SellerWithRelationship>> = state.detail,
+        detail: ResState<Pair<String, SellerWithNestedRelationship>> = state.detail,
         listing: ResState<Map<String, SellerWithRelationship>> = state.listing,
         page: Page = state.page,
         snackbar: SnackbarData = state.snackbar,

@@ -2,6 +2,7 @@ package com.chrrissoft.room.costumers.db.usecases
 
 import com.chrrissoft.room.costumers.db.objects.CostumerWithRelationship
 import com.chrrissoft.room.costumers.db.entities.CostumerDao
+import com.chrrissoft.room.costumers.db.objects.CostumerWithNestedRelationship
 import com.chrrissoft.room.shared.app.ResState
 import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.utils.FlowUtils.ResFlow
@@ -15,7 +16,7 @@ class GetCostumersUseCase @Inject constructor(private val dao: CostumerDao) {
         }
     }
 
-    operator fun invoke(id: String): Flow<ResState<Pair<String, CostumerWithRelationship>>> {
+    operator fun invoke(id: String): Flow<ResState<Pair<String, CostumerWithNestedRelationship>>> {
         return ResFlow { dao.get(id).collect { emit(Success(it.costumer.id to it)) } }
     }
 }

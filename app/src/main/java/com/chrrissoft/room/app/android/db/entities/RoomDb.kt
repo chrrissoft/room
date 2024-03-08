@@ -8,23 +8,40 @@ import com.chrrissoft.room.categories.db.entities.CategoryDao
 import com.chrrissoft.room.categories.db.objects.Category
 import com.chrrissoft.room.cities.db.entities.CityDao
 import com.chrrissoft.room.cities.db.objects.City
-import com.chrrissoft.room.common.CategoriesAndOrders
-import com.chrrissoft.room.common.CategoriesAndPromotions
-import com.chrrissoft.room.common.CategoriesAndSales
-import com.chrrissoft.room.common.CitiesAndShipments
-import com.chrrissoft.room.common.CitiesAndSuppliers
-import com.chrrissoft.room.common.CostumersAndProducts
-import com.chrrissoft.room.common.CostumersAndShipments
-import com.chrrissoft.room.common.ProductsAndOrders
-import com.chrrissoft.room.common.ProductsAndSales
-import com.chrrissoft.room.common.ProductsAndShipments
-import com.chrrissoft.room.common.ProductsAndSuppliers
-import com.chrrissoft.room.common.PromotionsAndOrders
-import com.chrrissoft.room.common.SalesAndPromotions
-import com.chrrissoft.room.common.SellersAndProducts
-import com.chrrissoft.room.common.SellersAndShipments
-import com.chrrissoft.room.common.SupplierAndSales
-import com.chrrissoft.room.common.SuppliersAndCategories
+import com.chrrissoft.room.common.entities.CategoriesAndOrdersDao
+import com.chrrissoft.room.common.entities.CategoriesAndPromotionsDao
+import com.chrrissoft.room.common.entities.CategoriesAndSalesDao
+import com.chrrissoft.room.common.entities.CitiesAndShipmentsDao
+import com.chrrissoft.room.common.entities.CitiesAndSuppliersDao
+import com.chrrissoft.room.common.entities.CostumersAndProductsDao
+import com.chrrissoft.room.common.entities.CostumersAndShipmentsDao
+import com.chrrissoft.room.common.entities.ProductsAndOrdersDao
+import com.chrrissoft.room.common.entities.ProductsAndSalesDao
+import com.chrrissoft.room.common.entities.ProductsAndShipmentsDao
+import com.chrrissoft.room.common.entities.ProductsAndSuppliersDao
+import com.chrrissoft.room.common.entities.PromotionsAndOrdersDao
+import com.chrrissoft.room.common.entities.SalesAndPromotionsDao
+import com.chrrissoft.room.common.entities.SellersAndProductsDao
+import com.chrrissoft.room.common.entities.SellersAndShipmentsDao
+import com.chrrissoft.room.common.entities.SupplierAndSalesDao
+import com.chrrissoft.room.common.entities.SuppliersAndCategoriesDao
+import com.chrrissoft.room.common.objects.CategoriesAndOrders
+import com.chrrissoft.room.common.objects.CategoriesAndPromotions
+import com.chrrissoft.room.common.objects.CategoriesAndSales
+import com.chrrissoft.room.common.objects.CitiesAndShipments
+import com.chrrissoft.room.common.objects.CitiesAndSuppliers
+import com.chrrissoft.room.common.objects.CostumersAndProducts
+import com.chrrissoft.room.common.objects.CostumersAndShipments
+import com.chrrissoft.room.common.objects.ProductsAndOrders
+import com.chrrissoft.room.common.objects.ProductsAndSales
+import com.chrrissoft.room.common.objects.ProductsAndShipments
+import com.chrrissoft.room.common.objects.ProductsAndSuppliers
+import com.chrrissoft.room.common.objects.PromotionsAndOrders
+import com.chrrissoft.room.common.objects.SalesAndPromotions
+import com.chrrissoft.room.common.objects.SellersAndProducts
+import com.chrrissoft.room.common.objects.SellersAndShipments
+import com.chrrissoft.room.common.objects.SupplierAndSales
+import com.chrrissoft.room.common.objects.SuppliersAndCategories
 import com.chrrissoft.room.costumers.db.entities.CostumerDao
 import com.chrrissoft.room.costumers.db.objects.Costumer
 import com.chrrissoft.room.countries.db.entities.CountryDao
@@ -77,8 +94,7 @@ import com.chrrissoft.room.suppliers.db.objects.Supplier
         SupplierAndSales::class,
         SuppliersAndCategories::class,
     ],
-//    views = [SaleWithRelationship::class],
-    version = 3,
+    version = 2,
 )
 abstract class RoomDb : RoomDatabase() {
     abstract val supplierDao: SupplierDao
@@ -93,4 +109,22 @@ abstract class RoomDb : RoomDatabase() {
     abstract val citiesDao: CityDao
     abstract val carriersDao: CarrierDao
     abstract val categoryDao: CategoryDao
+
+    abstract val categoriesAndOrdersDao: CategoriesAndOrdersDao
+    abstract val categoriesAndPromotionsDao: CategoriesAndPromotionsDao
+    abstract val categoriesAndSalesDao: CategoriesAndSalesDao
+    abstract val citiesAndShipmentsDao: CitiesAndShipmentsDao
+    abstract val citiesAndSuppliersDao: CitiesAndSuppliersDao
+    abstract val costumersAndProductsDao: CostumersAndProductsDao
+    abstract val costumersAndShipmentsDao: CostumersAndShipmentsDao
+    abstract val productsAndOrdersDao: ProductsAndOrdersDao
+    abstract val productsAndSalesDao: ProductsAndSalesDao
+    abstract val productsAndShipmentsDao: ProductsAndShipmentsDao
+    abstract val productsAndSuppliersDao: ProductsAndSuppliersDao
+    abstract val promotionsAndOrdersDao: PromotionsAndOrdersDao
+    abstract val salesAndPromotionsDao: SalesAndPromotionsDao
+    abstract val sellersAndProductsDao: SellersAndProductsDao
+    abstract val sellersAndShipmentsDao: SellersAndShipmentsDao
+    abstract val supplierAndSalesDao: SupplierAndSalesDao
+    abstract val suppliersAndCategoriesDao: SuppliersAndCategoriesDao
 }

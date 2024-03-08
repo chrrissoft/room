@@ -6,13 +6,14 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.chrrissoft.room.promotions.db.objects.Promotion
+import com.chrrissoft.room.promotions.db.objects.PromotionNestedWithRelationship
 import com.chrrissoft.room.promotions.db.objects.PromotionWithRelationship
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PromotionDao {
     @Query("SELECT * FROM promotions WHERE id = :id")
-    fun get(id: String) : Flow<PromotionWithRelationship>
+    fun get(id: String) : Flow<PromotionNestedWithRelationship>
 
     @Query("SELECT * FROM promotions")
     fun get() : Flow<List<PromotionWithRelationship>>

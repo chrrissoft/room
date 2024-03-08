@@ -3,7 +3,7 @@ package com.chrrissoft.room.orders.view.screens
 import androidx.compose.runtime.Composable
 import com.chrrissoft.room.cities.view.states.CitiesState
 import com.chrrissoft.room.orders.db.objects.Order
-import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
+import com.chrrissoft.room.orders.db.objects.OrderWithNestedRelationship
 import com.chrrissoft.room.orders.view.events.OrdersEvent
 import com.chrrissoft.room.orders.view.states.OrdersState
 import com.chrrissoft.room.orders.view.ui.OrderList
@@ -26,7 +26,7 @@ fun OrdersScreen(
         title = "Orders",
         onChangePage = { onEvent(OrdersEvent.OnChangePage(it)) },
         onSave = { state.detail.getSuccess()?.let { onEvent(OrdersEvent.OnSave(it)) } },
-        onCreate = { onEvent(OrdersEvent.OnCreate(it to OrderWithRelationship(Order(it)))) },
+        onCreate = { onEvent(OrdersEvent.OnCreate(it to OrderWithNestedRelationship(Order(it)))) },
         onNavigation = onOpenDrawer,
         details = {
             OrderWithRelationship(
