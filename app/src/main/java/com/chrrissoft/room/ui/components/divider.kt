@@ -11,6 +11,6 @@ import androidx.compose.ui.unit.dp
 fun RoomDivider() {
     Divider(
         color = MaterialTheme.colorScheme.primary.copy(.5f),
-        modifier = Modifier.padding(vertical = 15.dp)
+        modifier = Modifier.padding(top = 5.dp, bottom = 15.dp)
     )
 }

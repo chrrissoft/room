@@ -4,13 +4,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.chrrissoft.room.suppliers.db.objects.SupplierWithRelationship
 import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.view.Remove
+import com.chrrissoft.room.suppliers.db.objects.SupplierWithRelationship
 import com.chrrissoft.room.ui.components.RoomDivider
 import com.chrrissoft.room.ui.components.SelectableRoomTextField
 import com.chrrissoft.room.utils.ResStateUtils.getSuccess
@@ -19,7 +19,7 @@ import com.chrrissoft.room.utils.ResStateUtils.getSuccess
 fun AndOrRemoveSupplierList(
     added: ResState<Map<String, SupplierWithRelationship>>,
     available: ResState<Map<String, SupplierWithRelationship>>,
-    onRemove: (Map<String, SupplierWithRelationship>) -> Unit,
+    onRemove: ((Map<String, SupplierWithRelationship>) -> Unit)?,
     onAdd: (Map<String, SupplierWithRelationship>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -29,12 +29,7 @@ fun AndOrRemoveSupplierList(
                 value = it.second.supplier.name,
                 selected = true,
                 onClick = {  },
-                trailingIcon = {
-                    IconButton(
-                        onClick = { onRemove(mapOf(it)) },
-                        content = { Icon(Icons.Rounded.Remove, (null)) },
-                    )
-                }
+                trailingIcon = if (onRemove == null) null else Remove { onRemove(mapOf(it)) }
             )
         }
 

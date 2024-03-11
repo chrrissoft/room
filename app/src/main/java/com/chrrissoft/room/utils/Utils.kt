@@ -40,4 +40,6 @@ object Utils {
                 Page.DETAIL -> Icons.Rounded.Save
             }
         }
+
+    val List<*>.count get() = if (size == 1) "" else " (${size})"
 }

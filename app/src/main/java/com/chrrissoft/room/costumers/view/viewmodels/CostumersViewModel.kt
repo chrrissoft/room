@@ -14,6 +14,7 @@ import com.chrrissoft.room.costumers.view.events.CostumersEvent.OnCreate
 import com.chrrissoft.room.costumers.view.events.CostumersEvent.OnDelete
 import com.chrrissoft.room.costumers.view.events.CostumersEvent.OnOpen
 import com.chrrissoft.room.costumers.view.events.CostumersEvent.OnSave
+import com.chrrissoft.room.costumers.view.events.CostumersEvent.OnSaveRaw
 import com.chrrissoft.room.costumers.view.states.CostumersState
 import com.chrrissoft.room.costumers.view.viewmodels.CostumersViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
@@ -55,11 +56,11 @@ class CostumersViewModel @Inject constructor(
         fun onEvent(event: OnChange) = change(event.data)
         fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
+        fun onEvent(event: OnSaveRaw) = save(event.data.map { it.value }) { showSnackbar(it) }
     }
 
-    private fun save(data: Map<String, CostumerWithNestedRelationship>) {
-        save(data.map { it.value.costumer }) {  }
-    }
+    private fun save(data: Map<String, CostumerWithNestedRelationship>) =
+        save(data.map { it.value.costumer }) { showSnackbar(it) }
 
     private fun open(data: Pair<String, CostumerWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
@@ -126,4 +127,7 @@ class CostumersViewModel @Inject constructor(
             it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
         }
     }
+
+    override fun updateSnackbarType(messageType: SnackbarData.MessageType) =
+        updateState(snackbar = state.snackbar.copy(type = messageType))
 }

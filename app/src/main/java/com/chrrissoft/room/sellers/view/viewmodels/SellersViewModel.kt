@@ -14,6 +14,7 @@ import com.chrrissoft.room.sellers.view.events.SellersEvent.OnCreate
 import com.chrrissoft.room.sellers.view.events.SellersEvent.OnDelete
 import com.chrrissoft.room.sellers.view.events.SellersEvent.OnOpen
 import com.chrrissoft.room.sellers.view.events.SellersEvent.OnSave
+import com.chrrissoft.room.sellers.view.events.SellersEvent.OnSaveRaw
 import com.chrrissoft.room.sellers.view.states.SellersState
 import com.chrrissoft.room.sellers.view.viewmodels.SellersViewModel.EventHandler
 import com.chrrissoft.room.shared.app.ResState
@@ -55,11 +56,11 @@ class SellersViewModel @Inject constructor(
         fun onEvent(event: OnChange) = change(event.data)
         fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
+        fun onEvent(event: OnSaveRaw) = save(event.data.map { it.value }) { showSnackbar(it) }
     }
 
-    private fun save(data: Map<String, SellerWithNestedRelationship>) {
-        save(data.map { it.value.seller }) {  }
-    }
+    private fun save(data: Map<String, SellerWithNestedRelationship>) =
+        save(data.map { it.value.seller }) { showSnackbar(it) }
 
     private fun open(data: Pair<String, SellerWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
@@ -126,4 +127,7 @@ class SellersViewModel @Inject constructor(
             it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
         }
     }
+
+    override fun updateSnackbarType(messageType: SnackbarData.MessageType) =
+        updateState(snackbar = state.snackbar.copy(type = messageType))
 }

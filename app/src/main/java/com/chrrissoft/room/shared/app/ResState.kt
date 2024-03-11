@@ -10,15 +10,11 @@ sealed interface ResState<out R> {
     data class Success<R>(val data: R) : ResState<R>
 
     data class Error(val throwable: Throwable?) : ResState<Nothing> {
-        constructor(e: Error) : this(e.throwable)
 
         init {
             debug(throwable?.printStackTrace())
         }
 
         val message get() = throwable?.message ?: "Unknown error"
-    }
-
-    companion object {
     }
 }

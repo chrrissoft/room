@@ -13,8 +13,8 @@ import com.chrrissoft.room.promotions.db.objects.Promotion
             entity = Promotion::class,
             parentColumns = ["id"],
             childColumns = ["promotion_id"],
-            onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_DEFAULT,
+            // onUpdate = ForeignKey.CASCADE,
+            // onDelete =  ForeignKey.SET_DEFAULT,
         ),
     ]
 )
@@ -23,5 +23,5 @@ data class Product(
     @ColumnInfo(name = "id") val id: String,
     @ColumnInfo(name = "name") val name: String = "",
     @ColumnInfo(name = "description") val description: String = "",
-    @ColumnInfo(name = "promotion_id", defaultValue = "NULL") val promotionId: String? = "",
+    @ColumnInfo(name = "promotion_id", defaultValue = "NULL") val promotionId: String? = null,
 )

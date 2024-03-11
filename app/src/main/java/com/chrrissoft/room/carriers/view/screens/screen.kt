@@ -47,7 +47,7 @@ fun CarriersScreen(
                         .also { onShipmentsEvent(OnSaveRaw(it)) }
                 },
                 onAddShipments = { data ->
-                    val carrier = state.detail.getSuccess()?.first ?: ""
+                    val carrier = state.detail.getSuccess()?.first
                     data.mapValues { it.value.shipping.copy(carrierId = carrier) }
                         .also { onShipmentsEvent(OnSaveRaw(it)) }
                 },
@@ -62,6 +62,10 @@ fun CarriersScreen(
                 onSelect = { onEvent(OnOpen(it)) },
             )
         },
-        snackbarHost = { AlarmManagerSnackbar(state = state.snackbar) }
+        snackbarHost = {
+            AlarmManagerSnackbar(state = state.snackbar)
+            AlarmManagerSnackbar(state = citiesState.snackbar)
+            AlarmManagerSnackbar(state = shipmentsState.snackbar)
+        }
     )
 }

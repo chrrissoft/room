@@ -9,8 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.chrrissoft.room.categories.db.objects.CategoryWithNestedRelationship
-import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
-import com.chrrissoft.room.orders.view.ui.AndOrRemoveOrderListSheet
 import com.chrrissoft.room.promotions.db.objects.PromotionWithRelationship
 import com.chrrissoft.room.promotions.view.ui.AndOrRemovePromotionListSheet
 import com.chrrissoft.room.sales.db.objects.SaleWithRelationship
@@ -31,9 +29,6 @@ fun CategoryWithRelationship(
     promotions: ResState<Map<String, PromotionWithRelationship>>,
     onRemovePromotions: (Map<String, PromotionWithRelationship>) -> Unit,
     onAddPromotions: (Map<String, PromotionWithRelationship>) -> Unit,
-    orders: ResState<Map<String, OrderWithRelationship>>,
-    onRemoveOrders: (Map<String, OrderWithRelationship>) -> Unit,
-    onAddOrders: (Map<String, OrderWithRelationship>) -> Unit,
     sales: ResState<Map<String, SaleWithRelationship>>,
     onRemoveSales: (Map<String, SaleWithRelationship>) -> Unit,
     onAddSales: (Map<String, SaleWithRelationship>) -> Unit,
@@ -44,25 +39,6 @@ fun CategoryWithRelationship(
 ) {
     ResState(state = state) { res ->
         val data = remember(res) { res.second }
-
-        var showOrders by remember { mutableStateOf(value = false) }
-
-        if (showOrders) {
-            var availableOrders by remember(orders) { mutableStateOf(orders) }
-            LaunchedEffect(data.orders) {
-                orders.map { map -> map.filterNot { data.orders.contains(it.value) } }
-                    .let { availableOrders = it }
-            }
-
-            AndOrRemoveOrderListSheet(
-                added = Success(data.orders.associateBy { it.order.id }),
-                available = availableOrders,
-                onRemove = onRemoveOrders,
-                onAdd = onAddOrders,
-                onDismissRequest = { showOrders = false }
-            )
-        }
-
 
         var showPromotions by remember { mutableStateOf(value = false) }
 
@@ -126,12 +102,6 @@ fun CategoryWithRelationship(
                 state = data.category,
                 onStateChange = { onStateChange(res.first to data.copy(category = it)) })
             RoomDivider()
-            SelectableRoomTextField(
-                label = "Orders",
-                selected = showOrders,
-                onClick = { showOrders = true },
-                value = data.orders.joinToString(limit = 3) { it.toString() },
-            )
             SelectableRoomTextField(
                 label = "Promotions",
                 selected = showPromotions,

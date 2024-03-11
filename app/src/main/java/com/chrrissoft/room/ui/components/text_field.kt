@@ -70,7 +70,7 @@ fun SelectableRoomTextField(
         shape = shape,
         colors = colors,
         enabled = false,
-        modifier = modifier.padding(bottom = 10.dp).clickable(
+        modifier = modifier.clickable(
             remember { MutableInteractionSource() },
             indication = null
         ) { onClick() },
@@ -106,7 +106,7 @@ fun RoomTextField(
     TextField(
         value = value,
         onValueChange = onValueChange,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth().padding(bottom = 10.dp),
         enabled = enabled,
         readOnly = readOnly,
         textStyle = textStyle,

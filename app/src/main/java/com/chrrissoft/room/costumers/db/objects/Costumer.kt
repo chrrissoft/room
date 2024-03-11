@@ -8,13 +8,12 @@ import androidx.room.PrimaryKey
 import com.chrrissoft.room.cities.db.objects.City
 import com.chrrissoft.room.shared.db.PersonName
 
-
 @Entity(tableName = "costumers", foreignKeys = [ForeignKey(
     entity = City::class,
     parentColumns = ["id"],
     childColumns = ["city_id"],
-    onUpdate = ForeignKey.CASCADE,
-    onDelete = ForeignKey.SET_NULL,
+    // onUpdate = ForeignKey.CASCADE,
+    // onDelete =  ForeignKey.RESTRICT,
 )])
 data class Costumer(
     @PrimaryKey

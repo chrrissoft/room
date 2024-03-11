@@ -10,8 +10,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.chrrissoft.room.categories.db.objects.CategoryWithRelationship
 import com.chrrissoft.room.categories.view.ui.AndOrRemoveCategoryListSheet
-import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
-import com.chrrissoft.room.orders.view.ui.AndOrRemoveOrderListSheet
 import com.chrrissoft.room.products.db.objects.ProductWithRelationship
 import com.chrrissoft.room.products.view.ui.AndOrRemoveProductListSheet
 import com.chrrissoft.room.promotions.db.objects.PromotionNestedWithRelationship
@@ -35,9 +33,6 @@ fun PromotionWithRelationship(
     products: ResState<Map<String, ProductWithRelationship>>,
     onRemoveProducts: (Map<String, ProductWithRelationship>) -> Unit,
     onAddProducts: (Map<String, ProductWithRelationship>) -> Unit,
-    orders: ResState<Map<String, OrderWithRelationship>>,
-    onRemoveOrders: (Map<String, OrderWithRelationship>) -> Unit,
-    onAddOrders: (Map<String, OrderWithRelationship>) -> Unit,
     categories: ResState<Map<String, CategoryWithRelationship>>,
     onRemoveCategories: (Map<String, CategoryWithRelationship>) -> Unit,
     onAddCategories: (Map<String, CategoryWithRelationship>) -> Unit,
@@ -49,9 +44,15 @@ fun PromotionWithRelationship(
         var showSales by remember { mutableStateOf(value = false) }
 
         if (showSales) {
+            var availableSales by remember(sales) { mutableStateOf(sales) }
+            LaunchedEffect(data.sales) {
+                sales.map { map -> map.filterNot { data.sales.contains(it.value) } }
+                    .let { availableSales = it }
+            }
+
             AndOrRemoveSaleListSheet(
                 added = Success(data.sales.associateBy { it.sale.id }),
-                available = sales,
+                available = availableSales,
                 onRemove = onRemoveSales,
                 onAdd = onAddSales,
                 onDismissRequest = { showSales = false }
@@ -74,19 +75,6 @@ fun PromotionWithRelationship(
                 onRemove = onRemoveProducts,
                 onAdd = onAddProducts,
                 onDismissRequest = { showProducts = false }
-            )
-        }
-
-
-        var showOrders by remember { mutableStateOf(value = false) }
-
-        if (showOrders) {
-            AndOrRemoveOrderListSheet(
-                added = Success(data.orders.associateBy { it.order.id }),
-                available = orders,
-                onRemove = onRemoveOrders,
-                onAdd = onAddOrders,
-                onDismissRequest = { showOrders = false }
             )
         }
 
@@ -116,28 +104,22 @@ fun PromotionWithRelationship(
                 onStateChange = { onStateChange(pair.mapSecond { copy(promotion = it) }) })
             RoomDivider()
             SelectableRoomTextField(
-                label = "Sales",
-                selected = showSales,
-                onClick = { showSales = true },
-                value = data.sales.joinToString(limit = 3) { it.sale.id },
-            )
-            SelectableRoomTextField(
                 label = "Products",
                 selected = showProducts,
                 onClick = { showProducts = true },
                 value = data.products.joinToString(limit = 3) { it.product.name },
             )
             SelectableRoomTextField(
+                label = "Sales",
+                selected = showSales,
+                onClick = { showSales = true },
+                value = data.sales.joinToString(limit = 3) { it.sale.name },
+            )
+            SelectableRoomTextField(
                 label = "Categories",
                 selected = showCategories,
                 onClick = { showCategories = true },
                 value = data.categories.joinToString(limit = 3) { it.category.name },
-            )
-            SelectableRoomTextField(
-                label = "Orders",
-                selected = showOrders,
-                onClick = { showOrders = true },
-                value = data.orders.joinToString(limit = 3) { it.order.id },
             )
         }
     }

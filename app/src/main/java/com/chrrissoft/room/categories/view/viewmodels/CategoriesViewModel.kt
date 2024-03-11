@@ -8,19 +8,11 @@ import com.chrrissoft.room.categories.db.objects.CategoryWithRelationship
 import com.chrrissoft.room.categories.db.usecases.DeleteCategoriesUseCase
 import com.chrrissoft.room.categories.db.usecases.GetCategoriesUseCase
 import com.chrrissoft.room.categories.db.usecases.SaveCategoriesUseCase
-import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnAddOrders
-import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnAddPromotions
-import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnAddSales
-import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnAddSuppliers
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnChange
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnChangePage
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnCreate
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnDelete
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnOpen
-import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnRemoveOrders
-import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnRemovePromotions
-import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnRemoveSales
-import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnRemoveSuppliers
 import com.chrrissoft.room.categories.view.events.CategoriesEvent.OnSave
 import com.chrrissoft.room.categories.view.states.CategoriesState
 import com.chrrissoft.room.categories.view.viewmodels.CategoriesViewModel.EventHandler
@@ -29,6 +21,7 @@ import com.chrrissoft.room.shared.app.ResState.Success
 import com.chrrissoft.room.shared.view.Page
 import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.ui.entities.SnackbarData
+import com.chrrissoft.room.ui.entities.SnackbarData.MessageType
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -62,22 +55,14 @@ class CategoriesViewModel @Inject constructor(
         fun onEvent(event: OnChange) = change(event.data)
         fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
-        fun onEvent(event: OnAddPromotions) {}
-        fun onEvent(event: OnRemovePromotions) {}
-        fun onEvent(event: OnAddOrders) {}
-        fun onEvent(event: OnAddSales) {}
-        fun onEvent(event: OnAddSuppliers) {}
-        fun onEvent(event: OnRemoveOrders) {}
-        fun onEvent(event: OnRemoveSales) {}
-        fun onEvent(event: OnRemoveSuppliers) {}
     }
 
     private fun save(data: Map<String, CategoryWithNestedRelationship>) =
-        save(data.map { it.value.category }) { }
+        save(data.map { it.value.category }) { showSnackbar(it) }
 
     private fun open(data: Pair<String, CategoryWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
-        loadDetail(data.first)
+        updateState(page = DETAIL).also { loadDetail(data.first) }
     }
 
     private fun create(data: Pair<String, CategoryWithNestedRelationship>) {
@@ -139,4 +124,7 @@ class CategoriesViewModel @Inject constructor(
             it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
         }
     }
+
+    override fun updateSnackbarType(messageType: MessageType) =
+        updateState(snackbar = state.snackbar.copy(type = messageType))
 }

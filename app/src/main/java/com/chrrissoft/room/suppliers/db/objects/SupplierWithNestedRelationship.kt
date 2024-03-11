@@ -7,10 +7,10 @@ import com.chrrissoft.room.categories.db.objects.Category
 import com.chrrissoft.room.categories.db.objects.CategoryWithRelationship
 import com.chrrissoft.room.cities.db.objects.City
 import com.chrrissoft.room.cities.db.objects.CityWithRelationship
-import com.chrrissoft.room.common.objects.CitiesAndSuppliers
-import com.chrrissoft.room.common.objects.ProductsAndSuppliers
-import com.chrrissoft.room.common.objects.SupplierAndSales
-import com.chrrissoft.room.common.objects.SuppliersAndCategories
+import com.chrrissoft.room.cross.db.objects.CitiesAndSuppliers
+import com.chrrissoft.room.cross.db.objects.ProductsAndSuppliers
+import com.chrrissoft.room.cross.db.objects.SuppliersAndSales
+import com.chrrissoft.room.cross.db.objects.SuppliersAndCategories
 import com.chrrissoft.room.products.db.objects.Product
 import com.chrrissoft.room.products.db.objects.ProductWithRelationship
 import com.chrrissoft.room.sales.db.objects.Sale
@@ -36,7 +36,7 @@ data class SupplierWithNestedRelationship(
         entity = Sale::class,
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(SupplierAndSales::class, ("supplier_id"), ("sale_id"))
+        associateBy = Junction(SuppliersAndSales::class, ("supplier_id"), ("sale_id"))
     )
     val sales: List<SaleWithRelationship> = emptyList(),
     @Relation(

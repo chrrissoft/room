@@ -12,8 +12,8 @@ import com.chrrissoft.room.shared.db.PersonName
     entity = City::class,
     parentColumns = ["id"],
     childColumns = ["city_id"],
-    onUpdate = ForeignKey.CASCADE,
-    onDelete = ForeignKey.RESTRICT,
+    // onUpdate = ForeignKey.CASCADE,
+    // onDelete =  ForeignKey.RESTRICT,
 )])
 data class Seller(
     @PrimaryKey

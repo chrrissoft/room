@@ -57,12 +57,11 @@ class ShipmentsViewModel @Inject constructor(
         fun onEvent(event: OnChange) = change(event.data)
         fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
-        fun onEvent(event: OnSaveRaw) = save(event.data.map { it.value }) {}
+        fun onEvent(event: OnSaveRaw) = save(event.data.map { it.value }) { showSnackbar(it) }
     }
 
-    private fun save(data: Map<String, ShippingWithNestedRelationship>) {
-        save(data.map { it.value.shipping }) {  }
-    }
+    private fun save(data: Map<String, ShippingWithNestedRelationship>) =
+        save(data.map { it.value.shipping }) { showSnackbar(it) }
 
     private fun open(data: Pair<String, ShippingWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
@@ -129,4 +128,8 @@ class ShipmentsViewModel @Inject constructor(
             it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
         }
     }
+
+
+    override fun updateSnackbarType(messageType: SnackbarData.MessageType) =
+        updateState(snackbar = state.snackbar.copy(type = messageType))
 }

@@ -12,16 +12,18 @@ import com.chrrissoft.room.shipments.db.objects.Shipping.ShippingState.PENDING
         entity = Carrier::class,
         parentColumns = ["id"],
         childColumns = ["carrier_id"],
-        onUpdate = ForeignKey.CASCADE,
-        onDelete = ForeignKey.NO_ACTION, // 😐😐😐
+        // onUpdate = ForeignKey.CASCADE,
+//        // onDelete =  ForeignKey.NO_ACTION, // 😐😐😐
     )]
 )
 data class Shipping(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "name") val name: String = "",
     @ColumnInfo(name = "state") val state: ShippingState = PENDING,
     @ColumnInfo(name = "carrier_id") val carrierId: String? = null,
 ) {
+
     enum class ShippingState {
         PENDING, ON_THE_WAY, DELIVERED, INVALID
         ;

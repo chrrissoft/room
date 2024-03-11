@@ -1,6 +1,7 @@
 package com.chrrissoft.room.carriers.view.events
 
 import com.chrrissoft.room.base.view.event.BaseEvent
+import com.chrrissoft.room.carriers.db.objects.Carrier
 import com.chrrissoft.room.carriers.db.objects.CarrierWithNestedRelationship
 import com.chrrissoft.room.carriers.db.objects.CarrierWithRelationship
 import com.chrrissoft.room.carriers.view.viewmodels.CarriersViewModel.EventHandler
@@ -15,6 +16,7 @@ sealed interface CarriersEvent : BaseEvent<EventHandler> {
             is OnChange -> handler.onEvent(event = this)
             is OnDelete -> handler.onEvent(event = this)
             is OnChangePage -> handler.onEvent(event = this)
+            is OnSaveRaw -> handler.onEvent(event = this)
         }
     }
 
@@ -22,6 +24,10 @@ sealed interface CarriersEvent : BaseEvent<EventHandler> {
 
     data class OnSave(val data: Map<String, CarrierWithNestedRelationship>) : CarriersEvent {
         constructor(data: Pair<String, CarrierWithNestedRelationship>) : this(mapOf(data))
+    }
+
+    data class OnSaveRaw(val data: Map<String, Carrier>) : CarriersEvent {
+        constructor(data: Pair<String, Carrier>) : this(mapOf(data))
     }
 
     data class OnCreate(val data: Pair<String, CarrierWithNestedRelationship>) : CarriersEvent

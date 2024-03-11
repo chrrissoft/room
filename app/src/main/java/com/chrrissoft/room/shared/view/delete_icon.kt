@@ -3,6 +3,7 @@ package com.chrrissoft.room.shared.view
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DeleteForever
+import androidx.compose.material.icons.rounded.Remove
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -42,3 +43,18 @@ fun DeleteIcon(
 
 @Composable
 fun Delete(onDelete: () -> Unit) = @Composable { DeleteIcon(onDelete = onDelete) }
+
+@Composable
+fun RemoveIcon(
+    onRemove: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(
+        onClick = { onRemove() },
+        content = { Icon(Icons.Rounded.Remove, (null)) },
+        modifier = modifier
+    )
+}
+
+@Composable
+fun Remove(onRemove: () -> Unit) = @Composable { RemoveIcon(onRemove = onRemove) }

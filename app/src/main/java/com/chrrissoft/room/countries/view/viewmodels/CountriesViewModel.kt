@@ -57,9 +57,8 @@ class CountriesViewModel @Inject constructor(
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
     }
 
-    private fun save(data: Map<String, CountryNestedWithRelationship>) {
-        save(data.map { it.value.country }) {  }
-    }
+    private fun save(data: Map<String, CountryNestedWithRelationship>) =
+        save(data.map { it.value.country }) { showSnackbar(it) }
 
     private fun open(data: Pair<String, CountryWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
@@ -126,4 +125,7 @@ class CountriesViewModel @Inject constructor(
             it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
         }
     }
+
+    override fun updateSnackbarType(messageType: SnackbarData.MessageType) =
+        updateState(snackbar = state.snackbar.copy(type = messageType))
 }

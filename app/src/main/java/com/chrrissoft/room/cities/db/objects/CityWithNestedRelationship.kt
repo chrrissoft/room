@@ -5,8 +5,8 @@ import androidx.room.Junction
 import androidx.room.Relation
 import com.chrrissoft.room.carriers.db.objects.Carrier
 import com.chrrissoft.room.countries.db.objects.Country
-import com.chrrissoft.room.common.objects.CitiesAndShipments
-import com.chrrissoft.room.common.objects.CitiesAndSuppliers
+import com.chrrissoft.room.cross.db.objects.CitiesAndShipments
+import com.chrrissoft.room.cross.db.objects.CitiesAndSuppliers
 import com.chrrissoft.room.carriers.db.objects.CarrierWithRelationship
 import com.chrrissoft.room.costumers.db.objects.Costumer
 import com.chrrissoft.room.costumers.db.objects.CostumerWithRelationship

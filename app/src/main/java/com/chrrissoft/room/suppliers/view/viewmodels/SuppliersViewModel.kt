@@ -2,7 +2,12 @@ package com.chrrissoft.room.suppliers.view.viewmodels
 
 import com.chrrissoft.room.base.view.handler.BaseEventHandler
 import com.chrrissoft.room.base.view.viewmodel.BaseViewModel
+import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.shared.app.ResState.Success
+import com.chrrissoft.room.shared.view.Page
+import com.chrrissoft.room.shared.view.Page.DETAIL
 import com.chrrissoft.room.suppliers.db.objects.Supplier
+import com.chrrissoft.room.suppliers.db.objects.SupplierWithNestedRelationship
 import com.chrrissoft.room.suppliers.db.objects.SupplierWithRelationship
 import com.chrrissoft.room.suppliers.db.usecases.DeleteSuppliersUseCase
 import com.chrrissoft.room.suppliers.db.usecases.GetSuppliersUseCase
@@ -13,13 +18,9 @@ import com.chrrissoft.room.suppliers.view.events.SuppliersEvent.OnCreate
 import com.chrrissoft.room.suppliers.view.events.SuppliersEvent.OnDelete
 import com.chrrissoft.room.suppliers.view.events.SuppliersEvent.OnOpen
 import com.chrrissoft.room.suppliers.view.events.SuppliersEvent.OnSave
+import com.chrrissoft.room.suppliers.view.events.SuppliersEvent.OnSaveRaw
 import com.chrrissoft.room.suppliers.view.states.SuppliersState
 import com.chrrissoft.room.suppliers.view.viewmodels.SuppliersViewModel.EventHandler
-import com.chrrissoft.room.shared.app.ResState
-import com.chrrissoft.room.shared.app.ResState.Success
-import com.chrrissoft.room.shared.view.Page
-import com.chrrissoft.room.shared.view.Page.DETAIL
-import com.chrrissoft.room.suppliers.db.objects.SupplierWithNestedRelationship
 import com.chrrissoft.room.ui.entities.SnackbarData
 import com.chrrissoft.room.utils.ResStateUtils.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -55,11 +56,11 @@ class SuppliersViewModel @Inject constructor(
         fun onEvent(event: OnChange) = change(event.data)
         fun onEvent(event: OnDelete) = delete(event.data)
         fun onEvent(event: OnChangePage) = updateState(page = event.data)
+        fun onEvent(event: OnSaveRaw) = save(event.data.map { it.value }) { showSnackbar(it) }
     }
 
-    private fun save(data: Map<String, SupplierWithNestedRelationship>) {
-        save(data.map { it.value.supplier }) {  }
-    }
+    private fun save(data: Map<String, SupplierWithNestedRelationship>) =
+        save(data.map { it.value.supplier }) { showSnackbar(it) }
 
     private fun open(data: Pair<String, SupplierWithRelationship>) {
         (state.detail as? Success)?.data?.let { save(mapOf(it)) }
@@ -126,4 +127,7 @@ class SuppliersViewModel @Inject constructor(
             it.copy(detail = detail, listing = listing, snackbar = snackbar, page = page)
         }
     }
+
+    override fun updateSnackbarType(messageType: SnackbarData.MessageType) =
+        updateState(snackbar = state.snackbar.copy(type = messageType))
 }

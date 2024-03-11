@@ -20,7 +20,7 @@ fun SaleList(
     ResStateMap(state = state, modifier) { map ->
         items(map.toList()) {
             SelectableRoomTextField(
-                value = it.second.sale.payment.name,
+                value = it.second.sale.name,
                 onClick = { onSelect(it) },
                 selected = selected.contains(it.first),
                 trailingIcon = if (onDelete == null) null else Delete { onDelete(mapOf(it)) }

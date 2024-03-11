@@ -8,6 +8,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +22,7 @@ import com.chrrissoft.room.costumers.view.screens.CostumersScreen
 import com.chrrissoft.room.costumers.view.viewmodels.CostumersViewModel
 import com.chrrissoft.room.countries.view.screens.CountriesScreen
 import com.chrrissoft.room.countries.view.viewmodels.CountriesViewModel
+import com.chrrissoft.room.cross.view.viewmodel.CrossRefViewModel
 import com.chrrissoft.room.orders.view.screens.OrdersScreen
 import com.chrrissoft.room.orders.view.viewmodels.OrdersViewModel
 import com.chrrissoft.room.products.view.screens.ProductsScreen
@@ -59,6 +61,9 @@ fun RoomGraph() {
             )
         }
     ) {
+        val crossViewModel = viewModel<CrossRefViewModel>()
+        val crossState by crossViewModel.stateFlow.collectAsState()
+
         NavHost(navController = controller, startDestination = Screen.Carriers.route) {
             screen(Screen.Carriers) {
                 val viewModel = hiltViewModel<CarriersViewModel>()
@@ -80,8 +85,6 @@ fun RoomGraph() {
             screen(Screen.Categories) {
                 val viewModel = hiltViewModel<CategoriesViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
-                val ordersViewModel = hiltViewModel<OrdersViewModel>()
-                val ordersState by ordersViewModel.stateFlow.collectAsState()
                 val promotionsViewModel = hiltViewModel<PromotionsViewModel>()
                 val promotionsState by promotionsViewModel.stateFlow.collectAsState()
                 val salesViewModel = hiltViewModel<SalesViewModel>()
@@ -91,10 +94,11 @@ fun RoomGraph() {
                 CategoriesScreen(
                     state = state,
                     promotionsState = promotionsState,
-                    ordersState = ordersState,
                     salesState = salesState,
                     suppliersState = suppliersState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
+                    onCrossEvent = { crossViewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
             }
@@ -125,7 +129,13 @@ fun RoomGraph() {
                     sellersState = sellersState,
                     shipmentsState = shipmentsState,
                     suppliersState = suppliersState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
+                    onCrossEvent = { crossViewModel.handleEvent(it) },
+                    onCarriersEvent = { carriersViewModel.handleEvent(it) },
+                    onCostumersEvent = { costumersViewModel.handleEvent(it) },
+                    onOrdersEvent = { ordersViewModel.handleEvent(it) },
+                    onSellersEvent = { sellersViewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) },
                 )
             }
@@ -147,7 +157,10 @@ fun RoomGraph() {
                     salesState = salesState,
                     productsState = productsState,
                     shipmentsState = shipmentsState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
+                    onSalesEvent = { salesViewModel.handleEvent(it) },
+                    onCrossEvent = { crossViewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
             }
@@ -160,7 +173,9 @@ fun RoomGraph() {
                 CountriesScreen(
                     state = state,
                     citiesState = citiesState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
+                    onCitiesEvent = { citiesViewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) },
                 )
             }
@@ -168,14 +183,18 @@ fun RoomGraph() {
             screen(Screen.Orders) {
                 val viewModel = hiltViewModel<OrdersViewModel>()
                 val state by viewModel.stateFlow.collectAsState()
+                val salesViewModel = hiltViewModel<SalesViewModel>()
+                val salesState by salesViewModel.stateFlow.collectAsState()
                 val citiesViewModel = hiltViewModel<CitiesViewModel>()
                 val citiesState by citiesViewModel.stateFlow.collectAsState()
                 val shipmentsViewModel = hiltViewModel<ShipmentsViewModel>()
                 val shipmentsState by shipmentsViewModel.stateFlow.collectAsState()
                 OrdersScreen(
                     state = state,
+                    salesState = salesState,
                     citiesState = citiesState,
                     shipmentsState = shipmentsState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
@@ -186,10 +205,25 @@ fun RoomGraph() {
                 val state by viewModel.stateFlow.collectAsState()
                 val promotionsViewModel = hiltViewModel<PromotionsViewModel>()
                 val promotionsState by promotionsViewModel.stateFlow.collectAsState()
+                val costumersViewModel = hiltViewModel<CostumersViewModel>()
+                val costumersState by costumersViewModel.stateFlow.collectAsState()
+                val sellersViewModel = hiltViewModel<SellersViewModel>()
+                val sellersState by sellersViewModel.stateFlow.collectAsState()
+                val suppliersViewModel = hiltViewModel<SuppliersViewModel>()
+                val suppliersState by suppliersViewModel.stateFlow.collectAsState()
+                val salesViewModel = hiltViewModel<SalesViewModel>()
+                val salesState by salesViewModel.stateFlow.collectAsState()
+
                 ProductsScreen(
                     state = state,
                     promotionsState = promotionsState,
+                    costumersState = costumersState,
+                    salesState = salesState,
+                    suppliersState = suppliersState,
+                    sellersState = sellersState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
+                    onCrossEvent = { crossViewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) },
                 )
             }
@@ -203,15 +237,15 @@ fun RoomGraph() {
                 val productsState by productsViewModel.stateFlow.collectAsState()
                 val categoriesViewModel = hiltViewModel<CategoriesViewModel>()
                 val categoriesState by categoriesViewModel.stateFlow.collectAsState()
-                val ordersViewModel = hiltViewModel<OrdersViewModel>()
-                val ordersState by ordersViewModel.stateFlow.collectAsState()
                 PromotionsScreen(
                     state = state,
                     salesState = salesState,
                     productsState = productsState,
                     categoriesState = categoriesState,
-                    ordersState = ordersState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
+                    onCrossEvent = { crossViewModel.handleEvent(it) },
+                    onProductsEvent = { productsViewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
             }
@@ -225,12 +259,26 @@ fun RoomGraph() {
                 val sellersState by sellersViewModel.stateFlow.collectAsState()
                 val ordersViewModel = hiltViewModel<OrdersViewModel>()
                 val ordersState by ordersViewModel.stateFlow.collectAsState()
+                val suppliersViewModel = hiltViewModel<SuppliersViewModel>()
+                val suppliersState by suppliersViewModel.stateFlow.collectAsState()
+                val categoriesViewModel = hiltViewModel<CategoriesViewModel>()
+                val categoriesState by categoriesViewModel.stateFlow.collectAsState()
+                val productsViewModel = hiltViewModel<ProductsViewModel>()
+                val productsState by productsViewModel.stateFlow.collectAsState()
+                val promotionsViewModel = hiltViewModel<PromotionsViewModel>()
+                val promotionsState by promotionsViewModel.stateFlow.collectAsState()
                 SalesScreen(
                     state = state,
                     costumersState = costumersState,
                     sellersState = sellersState,
                     ordersState = ordersState,
+                    suppliersState = suppliersState,
+                    categoriesState = categoriesState,
+                    productsState = productsState,
+                    promotionsState = promotionsState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
+                    onCrossEvent = { crossViewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
             }
@@ -242,12 +290,21 @@ fun RoomGraph() {
                 val citiesState by citiesViewModel.stateFlow.collectAsState()
                 val salesViewModel = hiltViewModel<SalesViewModel>()
                 val salesState by salesViewModel.stateFlow.collectAsState()
+                val productsViewModel = hiltViewModel<ProductsViewModel>()
+                val productsState by productsViewModel.stateFlow.collectAsState()
+                val shipmentsViewModel = hiltViewModel<ShipmentsViewModel>()
+                val shipmentsState by shipmentsViewModel.stateFlow.collectAsState()
                 SellersScreen(
                     state = state,
                     citiesState = citiesState,
                     salesState = salesState,
+                    productsState = productsState,
+                    shipmentsState = shipmentsState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
-                    onOpenDrawer = { drawerState.open(scope) }
+                    onSalesEvent = { salesViewModel.handleEvent(it) },
+                    onCrossEvent = { crossViewModel.handleEvent(it) },
+                    onOpenDrawer = { drawerState.open(scope) },
                 )
             }
 
@@ -258,11 +315,23 @@ fun RoomGraph() {
                 val carriersState by carriersViewModel.stateFlow.collectAsState()
                 val ordersViewModel = hiltViewModel<OrdersViewModel>()
                 val ordersState by ordersViewModel.stateFlow.collectAsState()
+                val citiesViewModel = hiltViewModel<CitiesViewModel>()
+                val citiesState by citiesViewModel.stateFlow.collectAsState()
+                val costumersViewModel = hiltViewModel<CostumersViewModel>()
+                val costumersState by costumersViewModel.stateFlow.collectAsState()
+                val sellersViewModel = hiltViewModel<SellersViewModel>()
+                val sellersState by sellersViewModel.stateFlow.collectAsState()
                 ShipmentsScreen(
                     state = state,
                     carriersState = carriersState,
                     ordersState = ordersState,
+                    citiesState = citiesState,
+                    costumersState = costumersState,
+                    sellersState = sellersState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
+                    onCrossEvent = { crossViewModel.handleEvent(it) },
+                    onOrdersEvent = { ordersViewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
             }
@@ -284,7 +353,9 @@ fun RoomGraph() {
                     citiesState = citiesState,
                     productsState = productsState,
                     categoriesState = categoriesState,
+                    crossState = crossState,
                     onEvent = { viewModel.handleEvent(it) },
+                    onCrossEvent = { crossViewModel.handleEvent(it) },
                     onOpenDrawer = { drawerState.open(scope) }
                 )
             }

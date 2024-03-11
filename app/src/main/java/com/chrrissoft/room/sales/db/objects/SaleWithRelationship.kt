@@ -4,10 +4,10 @@ import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 import com.chrrissoft.room.categories.db.objects.Category
-import com.chrrissoft.room.common.objects.CategoriesAndSales
-import com.chrrissoft.room.common.objects.ProductsAndSales
-import com.chrrissoft.room.common.objects.SalesAndPromotions
-import com.chrrissoft.room.common.objects.SupplierAndSales
+import com.chrrissoft.room.cross.db.objects.CategoriesAndSales
+import com.chrrissoft.room.cross.db.objects.ProductsAndSales
+import com.chrrissoft.room.cross.db.objects.SalesAndPromotions
+import com.chrrissoft.room.cross.db.objects.SuppliersAndSales
 import com.chrrissoft.room.costumers.db.objects.Costumer
 import com.chrrissoft.room.orders.db.objects.Order
 import com.chrrissoft.room.products.db.objects.Product
@@ -26,25 +26,25 @@ data class SaleWithRelationship(
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(CategoriesAndSales::class, ("category_id"), ("category_id"))
+        associateBy = Junction(CategoriesAndSales::class, ("sale_id"), ("category_id"))
     )
-    val categories: List<Category>,
+    val categories: List<Category> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(ProductsAndSales::class, ("product_id"), ("product_id"))
+        associateBy = Junction(ProductsAndSales::class, ("sale_id"), ("product_id"))
     )
-    val products: List<Product>,
+    val products: List<Product> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(SalesAndPromotions::class, ("promotion_id"), ("promotion_id"))
+        associateBy = Junction(SalesAndPromotions::class, ("sale_id"), ("promotion_id"))
     )
-    val promotions: List<Promotion>,
+    val promotions: List<Promotion> = emptyList(),
     @Relation(
         parentColumn = "id",
         entityColumn = "id",
-        associateBy = Junction(SupplierAndSales::class, ("supplier_id"), ("supplier_id"))
+        associateBy = Junction(SuppliersAndSales::class, ("sale_id"), ("supplier_id"))
     )
-    val suppliers: List<Supplier>,
+    val suppliers: List<Supplier> = emptyList(),
 )

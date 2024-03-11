@@ -12,7 +12,7 @@ import com.chrrissoft.room.ui.components.MyModalBottomSheet
 fun AndOrRemoveSellerListSheet(
     added: ResState<Map<String, SellerWithRelationship>>,
     available: ResState<Map<String, SellerWithRelationship>>,
-    onRemove: (Map<String, SellerWithRelationship>) -> Unit,
+    onRemove: ((Map<String, SellerWithRelationship>) -> Unit)?,
     onAdd: (Map<String, SellerWithRelationship>) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,

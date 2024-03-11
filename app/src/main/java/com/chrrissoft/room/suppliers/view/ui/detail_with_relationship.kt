@@ -1,6 +1,8 @@
 package com.chrrissoft.room.suppliers.view.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -24,6 +26,8 @@ import com.chrrissoft.room.ui.components.RoomDivider
 import com.chrrissoft.room.ui.components.SelectableRoomTextField
 import com.chrrissoft.room.utils.PairUtils.mapSecond
 import com.chrrissoft.room.utils.ResStateUtils.map
+import com.chrrissoft.room.utils.Utils
+import com.chrrissoft.room.utils.Utils.count
 
 @Composable
 fun SupplierWithRelationship(
@@ -49,15 +53,9 @@ fun SupplierWithRelationship(
         var showCities by remember { mutableStateOf(value = false) }
 
         if (showCities) {
-            var availableCities by remember(cities) { mutableStateOf(cities) }
-            LaunchedEffect(data.cities) {
-                cities.map { map -> map.filterNot { data.cities.contains(it.value) } }
-                    .let { availableCities = it }
-            }
-
             AndOrRemoveCityListSheet(
-                added = Success(data.cities.associateBy { it.city.id }),
-                available = availableCities,
+                added = Success(data.cities.associateBy { Utils.uuid }),
+                available = cities,
                 onRemove = onRemoveCities,
                 onAdd = onAddCities,
                 onDismissRequest = { showCities = false }
@@ -111,6 +109,7 @@ fun SupplierWithRelationship(
                 categories.map { map -> map.filterNot { data.categories.contains(it.value) } }
                     .let { availableCategories = it }
             }
+
             AndOrRemoveCategoryListSheet(
                 added = Success(data.categories.associateBy { it.category.id }),
                 available = availableCategories,
@@ -120,7 +119,7 @@ fun SupplierWithRelationship(
             )
         }
 
-        Column(modifier) {
+        Column(modifier.verticalScroll(rememberScrollState())) {
             Supplier(
                 state = data.supplier,
                 onStateChange = { onStateChange(pair.mapSecond { copy(supplier = it) }) })
@@ -129,7 +128,9 @@ fun SupplierWithRelationship(
                 label = "Cities",
                 selected = showCities,
                 onClick = { showCities = true },
-                value = data.cities.joinToString(limit = 3) { it.city.name },
+                value = data.cities.groupBy { it.city.id }.toList().joinToString(limit = 3) {
+                    it.second.first().city.name + it.second.count
+                },
             )
             SelectableRoomTextField(
                 label = "Products",

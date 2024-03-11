@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.chrrissoft.room.common.objects.Direction
+import com.chrrissoft.room.cross.db.objects.Direction
 
 @Entity(tableName = "suppliers")
 data class Supplier(

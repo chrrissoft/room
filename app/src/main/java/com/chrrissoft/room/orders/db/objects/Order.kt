@@ -6,7 +6,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.chrrissoft.room.cities.db.objects.City
-import com.chrrissoft.room.common.objects.Direction
+import com.chrrissoft.room.cross.db.objects.Direction
 import com.chrrissoft.room.sales.db.objects.Sale
 import com.chrrissoft.room.shipments.db.objects.Shipping
 
@@ -17,31 +17,32 @@ import com.chrrissoft.room.shipments.db.objects.Shipping
             entity = Sale::class,
             parentColumns = ["id"],
             childColumns = ["id"],
-            onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.RESTRICT,
+            // onUpdate = ForeignKey.CASCADE,
+            // onDelete =  ForeignKey.RESTRICT,
         ),
         ForeignKey(
             entity = City::class,
             parentColumns = ["id"],
             childColumns = ["city_id"],
-            onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.RESTRICT,
+            // onUpdate = ForeignKey.CASCADE,
+            // onDelete =  ForeignKey.RESTRICT,
         ),
         ForeignKey(
             entity = Shipping::class,
             parentColumns = ["id"],
             childColumns = ["shipping_id"],
-            onUpdate = ForeignKey.CASCADE,
-            onDelete = ForeignKey.SET_DEFAULT,
+            // onUpdate = ForeignKey.CASCADE,
+            // onDelete =  ForeignKey.SET_DEFAULT,
         ),
     ]
 )
 data class Order(
     @PrimaryKey
     @ColumnInfo(name = "id") val id: String,
+    @ColumnInfo(name = "name") val name: String = "",
     @Embedded val direction: Direction = Direction(),
     @ColumnInfo(name = "city_id") val cityId: String = "",
-    @ColumnInfo(name = "shipping_id", defaultValue = "NULL") val shippingId: String? = "",
+    @ColumnInfo(name = "shipping_id", defaultValue = "NULL") val shippingId: String? = null,
 ) {
     companion object {
         val invalid = Order("")

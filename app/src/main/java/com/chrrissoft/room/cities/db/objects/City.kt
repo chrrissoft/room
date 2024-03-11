@@ -11,8 +11,8 @@ import com.chrrissoft.room.countries.db.objects.Country
         entity = Country::class,
         parentColumns = ["id"],
         childColumns = ["country_id"],
-        onUpdate = ForeignKey.CASCADE,
-        onDelete = ForeignKey.RESTRICT,
+        // onUpdate = ForeignKey.CASCADE,
+//        // onDelete =  ForeignKey.RESTRICT,
     )])
 data class City(
     @PrimaryKey

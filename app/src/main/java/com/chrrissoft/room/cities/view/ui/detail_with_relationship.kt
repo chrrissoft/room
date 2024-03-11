@@ -1,6 +1,8 @@
 package com.chrrissoft.room.cities.view.ui
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,6 +32,8 @@ import com.chrrissoft.room.ui.components.RoomDivider
 import com.chrrissoft.room.ui.components.SelectableRoomTextField
 import com.chrrissoft.room.utils.PairUtils.mapSecond
 import com.chrrissoft.room.utils.ResStateUtils.map
+import com.chrrissoft.room.utils.Utils
+import com.chrrissoft.room.utils.Utils.count
 
 @Composable
 fun CityWithRelationship(
@@ -37,22 +41,22 @@ fun CityWithRelationship(
     onStateChange: (Pair<String, CityWithNestedRelationship>) -> Unit,
     countries: ResState<Map<String, CountryWithRelationship>>,
     carriers: ResState<Map<String, CarrierWithRelationship>>,
-    onRemoveCarriers: (Map<String, CarrierWithRelationship>) -> Unit,
+    onRemoveCarriers: ((Map<String, CarrierWithRelationship>) -> Unit)?,
     onAddCarriers: (Map<String, CarrierWithRelationship>) -> Unit,
     costumers: ResState<Map<String, CostumerWithRelationship>>,
     onRemoveCostumers: (Map<String, CostumerWithRelationship>) -> Unit,
     onAddCostumers: (Map<String, CostumerWithRelationship>) -> Unit,
     orders: ResState<Map<String, OrderWithRelationship>>,
-    onRemoveOrders: (Map<String, OrderWithRelationship>) -> Unit,
+    onRemoveOrders: ((Map<String, OrderWithRelationship>) -> Unit)?,
     onAddOrders: (Map<String, OrderWithRelationship>) -> Unit,
     sellers: ResState<Map<String, SellerWithRelationship>>,
-    onRemoveSellers: (Map<String, SellerWithRelationship>) -> Unit,
+    onRemoveSellers: ((Map<String, SellerWithRelationship>) -> Unit)?,
     onAddSellers: (Map<String, SellerWithRelationship>) -> Unit,
     shipments: ResState<Map<String, ShippingWithRelationship>>,
-    onRemoveShipments: (Map<String, ShippingWithRelationship>) -> Unit,
+    onRemoveShipments: ((Map<String, ShippingWithRelationship>) -> Unit)?,
     onAddShipments: (Map<String, ShippingWithRelationship>) -> Unit,
     suppliers: ResState<Map<String, SupplierWithRelationship>>,
-    onRemoveSuppliers: (Map<String, SupplierWithRelationship>) -> Unit,
+    onRemoveSuppliers: ((Map<String, SupplierWithRelationship>) -> Unit)?,
     onAddSuppliers: (Map<String, SupplierWithRelationship>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -78,9 +82,14 @@ fun CityWithRelationship(
         var showCarriers by remember { mutableStateOf(value = false) }
 
         if (showCarriers) {
+            var availableCarriers by remember(carriers) { mutableStateOf(carriers) }
+            LaunchedEffect(data.carriers) {
+                carriers.map { map -> map.filterNot { data.carriers.contains(it.value) } }
+                    .let { availableCarriers = it }
+            }
             AndOrRemoveCarrierListSheet(
                 added = Success(data.carriers.associateBy { it.carrier.id }),
-                available = carriers,
+                available = availableCarriers,
                 onRemove = onRemoveCarriers,
                 onAdd = onAddCarriers,
                 onDismissRequest = { showCarriers = false }
@@ -91,9 +100,14 @@ fun CityWithRelationship(
         var showCostumers by remember { mutableStateOf(value = false) }
 
         if (showCostumers) {
+            var availableCostumers by remember(costumers) { mutableStateOf(costumers) }
+            LaunchedEffect(data.costumers) {
+                costumers.map { map -> map.filterNot { data.costumers.contains(it.value) } }
+                    .let { availableCostumers = it }
+            }
             AndOrRemoveCostumerListSheet(
                 added = Success(data.costumers.associateBy { it.costumer.id }),
-                available = costumers,
+                available = availableCostumers,
                 onRemove = onRemoveCostumers,
                 onAdd = onAddCostumers,
                 onDismissRequest = { showCostumers = false }
@@ -103,9 +117,14 @@ fun CityWithRelationship(
         var showOrders by remember { mutableStateOf(value = false) }
 
         if (showOrders) {
+            var availableOrders by remember(orders) { mutableStateOf(orders) }
+            LaunchedEffect(data.orders) {
+                orders.map { map -> map.filterNot { data.orders.contains(it.value) } }
+                    .let { availableOrders = it }
+            }
             AndOrRemoveOrderListSheet(
                 added = Success(data.orders.associateBy { it.order.id }),
-                available = orders,
+                available = availableOrders,
                 onRemove = onRemoveOrders,
                 onAdd = onAddOrders,
                 onDismissRequest = { showOrders = false }
@@ -116,9 +135,14 @@ fun CityWithRelationship(
         var showSellers by remember { mutableStateOf(value = false) }
 
         if (showSellers) {
+            var availableSeller by remember(sellers) { mutableStateOf(sellers) }
+            LaunchedEffect(data.sellers) {
+                sellers.map { map -> map.filterNot { data.sellers.contains(it.value) } }
+                    .let { availableSeller = it }
+            }
             AndOrRemoveSellerListSheet(
                 added = Success(data.sellers.associateBy { it.seller.id }),
-                available = sellers,
+                available = availableSeller,
                 onRemove = onRemoveSellers,
                 onAdd = onAddSellers,
                 onDismissRequest = { showSellers = false }
@@ -129,9 +153,14 @@ fun CityWithRelationship(
         var showShipments by remember { mutableStateOf(value = false) }
 
         if (showShipments) {
+            var availableShipments by remember(shipments) { mutableStateOf(shipments) }
+            LaunchedEffect(data.shipments) {
+                shipments.map { map -> map.filterNot { data.shipments.contains(it.value) } }
+                    .let { availableShipments = it }
+            }
             AndOrRemoveShippingListSheet(
                 added = Success(data.shipments.associateBy { it.shipping.id }),
-                available = shipments,
+                available = availableShipments,
                 onRemove = onRemoveShipments,
                 onAdd = onAddShipments,
                 onDismissRequest = { showShipments = false }
@@ -142,22 +171,17 @@ fun CityWithRelationship(
         var showSuppliers by remember { mutableStateOf(value = false) }
 
         if (showSuppliers) {
-            var availableSuppliers by remember(suppliers) { mutableStateOf(suppliers) }
-            LaunchedEffect(data.suppliers) {
-                suppliers.map { map -> map.filterNot { data.suppliers.contains(it.value) } }
-                    .let { availableSuppliers = it }
-            }
-
             AndOrRemoveSupplierListSheet(
-                added = ResState.Success(data.suppliers.associateBy { it.supplier.id }),
-                available = availableSuppliers,
+                added = Success(data.suppliers.associateBy { Utils.uuid }),
+                available = suppliers,
                 onRemove = onRemoveSuppliers,
                 onAdd = onAddSuppliers,
                 onDismissRequest = { showSuppliers = false }
             )
         }
 
-        Column(modifier) {
+
+        Column(modifier.verticalScroll(rememberScrollState())) {
             City(
                 state = data.city,
                 onStateChange = { onStateChange(pair.mapSecond { copy(city = it) }) }
@@ -168,6 +192,44 @@ fun CityWithRelationship(
                 selected = showCountries,
                 value = data.country.name,
                 onClick = { showCountries = true },
+            )
+            SelectableRoomTextField(
+                label = "Carriers",
+                selected = showCarriers,
+                value = data.carriers.joinToString(limit = 3) { it.carrier.name.first },
+                onClick = { showCarriers = true },
+            )
+            SelectableRoomTextField(
+                label = "Costumers",
+                selected = showCostumers,
+                value = data.costumers.joinToString(limit = 3) { it.costumer.name.first },
+                onClick = { showCostumers = true },
+            )
+            SelectableRoomTextField(
+                label = "Orders",
+                selected = showOrders,
+                value = data.orders.joinToString(limit = 3) { it.order.name },
+                onClick = { showOrders = true },
+            )
+            SelectableRoomTextField(
+                label = "Sellers",
+                selected = showSellers,
+                value = data.sellers.joinToString(limit = 3) { it.seller.name.first },
+                onClick = { showSellers = true },
+            )
+            SelectableRoomTextField(
+                label = "Shipments",
+                selected = showShipments,
+                value = data.shipments.joinToString(limit = 3) { it.shipping.name },
+                onClick = { showShipments = true },
+            )
+            SelectableRoomTextField(
+                label = "Suppliers",
+                selected = showSuppliers,
+                value = data.suppliers.groupBy { it.supplier.id }.toList().joinToString(limit = 3) {
+                    it.second.first().supplier.name + it.second.count
+                },
+                onClick = { showSuppliers = true },
             )
         }
     }

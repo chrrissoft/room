@@ -1,6 +1,7 @@
 package com.chrrissoft.room.orders.view.events
 
 import com.chrrissoft.room.base.view.event.BaseEvent
+import com.chrrissoft.room.orders.db.objects.Order
 import com.chrrissoft.room.orders.db.objects.OrderWithNestedRelationship
 import com.chrrissoft.room.orders.db.objects.OrderWithRelationship
 import com.chrrissoft.room.orders.view.viewmodels.OrdersViewModel.EventHandler
@@ -11,6 +12,7 @@ sealed interface OrdersEvent : BaseEvent<EventHandler> {
         when (this) {
             is OnOpen -> handler.onEvent(event = this)
             is OnSave -> handler.onEvent(event = this)
+            is OnSaveRaw -> handler.onEvent(event = this)
             is OnCreate -> handler.onEvent(event = this)
             is OnChange -> handler.onEvent(event = this)
             is OnDelete -> handler.onEvent(event = this)
@@ -22,6 +24,10 @@ sealed interface OrdersEvent : BaseEvent<EventHandler> {
 
     data class OnSave(val data: Map<String, OrderWithNestedRelationship>) : OrdersEvent {
         constructor(data: Pair<String, OrderWithNestedRelationship>) : this(mapOf(data))
+    }
+
+    data class OnSaveRaw(val data: Map<String, Order>) : OrdersEvent {
+        constructor(data: Pair<String, Order>) : this(mapOf(data))
     }
 
     data class OnCreate(val data: Pair<String, OrderWithNestedRelationship>) : OrdersEvent

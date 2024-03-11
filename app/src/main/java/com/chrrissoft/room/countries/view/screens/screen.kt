@@ -1,6 +1,7 @@
 package com.chrrissoft.room.countries.view.screens
 
 import androidx.compose.runtime.Composable
+import com.chrrissoft.room.cities.view.events.CitiesEvent
 import com.chrrissoft.room.cities.view.states.CitiesState
 import com.chrrissoft.room.countries.db.objects.Country
 import com.chrrissoft.room.countries.db.objects.CountryNestedWithRelationship
@@ -14,15 +15,18 @@ import com.chrrissoft.room.countries.view.events.CountriesEvent.OnSave
 import com.chrrissoft.room.countries.view.states.CountriesState
 import com.chrrissoft.room.countries.view.ui.CountriesList
 import com.chrrissoft.room.countries.view.ui.CountryWithRelationship
-import com.chrrissoft.room.shared.app.ResState
+import com.chrrissoft.room.cross.view.state.CrossRefState
+import com.chrrissoft.room.ui.components.AlarmManagerSnackbar
 import com.chrrissoft.room.ui.components.CommonScreen
 import com.chrrissoft.room.utils.ResStateUtils.getSuccess
 
 @Composable
 fun CountriesScreen(
     state: CountriesState,
-    onEvent: (CountriesEvent) -> Unit,
     citiesState: CitiesState,
+    crossState: CrossRefState,
+    onEvent: (CountriesEvent) -> Unit,
+    onCitiesEvent: (CitiesEvent) -> Unit,
     onOpenDrawer: () -> Unit,
 ) {
     CommonScreen(
@@ -36,10 +40,13 @@ fun CountriesScreen(
             CountryWithRelationship(
                 state = state.detail,
                 onStateChange = { onEvent(OnChange(it)) },
-                availableCities = ResState.None,
-                addedCities = ResState.None,
-                onRemoveCities = {},
-                onAddCities = {},
+                cities = citiesState.listing,
+                onRemoveCities = null,
+                onAddCities = { data ->
+                    val id = state.detail.getSuccess()?.first ?: return@CountryWithRelationship
+                    data.mapValues { it.value.city.copy(countryId = id) }
+                        .also { onCitiesEvent(CitiesEvent.OnSaveRaw(it)) }
+                },
             )
         },
         list = {
@@ -49,6 +56,11 @@ fun CountriesScreen(
                 selected = setOf(state.detail.getSuccess()?.first),
                 onSelect = { onEvent(OnOpen(it)) },
             )
+        },
+        snackbarHost = {
+            AlarmManagerSnackbar(state = state.snackbar)
+            AlarmManagerSnackbar(state = citiesState.snackbar)
+            AlarmManagerSnackbar(state = crossState.snackbar)
         },
     )
 }

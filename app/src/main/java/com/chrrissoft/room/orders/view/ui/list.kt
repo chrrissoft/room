@@ -20,7 +20,7 @@ fun OrderList(
     ResStateMap(state = state, modifier) { map ->
         items(map.toList()) {
             SelectableRoomTextField(
-                value = it.second.order.id,
+                value = it.second.order.name,
                 selected = selected.contains(it.first),
                 onClick = { onSelect(it) },
                 trailingIcon = if (onDelete == null) null else Delete { onDelete(mapOf(it)) }

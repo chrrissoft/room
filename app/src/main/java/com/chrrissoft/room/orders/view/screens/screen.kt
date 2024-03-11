@@ -2,12 +2,14 @@ package com.chrrissoft.room.orders.view.screens
 
 import androidx.compose.runtime.Composable
 import com.chrrissoft.room.cities.view.states.CitiesState
+import com.chrrissoft.room.cross.view.state.CrossRefState
 import com.chrrissoft.room.orders.db.objects.Order
 import com.chrrissoft.room.orders.db.objects.OrderWithNestedRelationship
 import com.chrrissoft.room.orders.view.events.OrdersEvent
 import com.chrrissoft.room.orders.view.states.OrdersState
 import com.chrrissoft.room.orders.view.ui.OrderList
 import com.chrrissoft.room.orders.view.ui.OrderWithRelationship
+import com.chrrissoft.room.sales.view.states.SalesState
 import com.chrrissoft.room.shipments.view.states.ShipmentsState
 import com.chrrissoft.room.ui.components.AlarmManagerSnackbar
 import com.chrrissoft.room.ui.components.CommonScreen
@@ -16,8 +18,10 @@ import com.chrrissoft.room.utils.ResStateUtils.getSuccess
 @Composable
 fun OrdersScreen(
     state: OrdersState,
+    salesState: SalesState,
     citiesState: CitiesState,
     shipmentsState: ShipmentsState,
+    crossState: CrossRefState,
     onEvent: (OrdersEvent) -> Unit,
     onOpenDrawer: () -> Unit,
 ) {
@@ -33,6 +37,7 @@ fun OrdersScreen(
                 state = state.detail,
                 onStateChange = { onEvent(OrdersEvent.OnChange(it)) },
                 cities = citiesState.listing,
+                sales = salesState.listing,
                 shipments = shipmentsState.listing,
             )
         },
@@ -44,6 +49,12 @@ fun OrdersScreen(
                 onSelect = { onEvent(OrdersEvent.OnOpen(it)) },
             )
         },
-        snackbarHost = { AlarmManagerSnackbar(state = state.snackbar) }
+        snackbarHost = {
+            AlarmManagerSnackbar(state = state.snackbar)
+            AlarmManagerSnackbar(state = salesState.snackbar)
+            AlarmManagerSnackbar(state = citiesState.snackbar)
+            AlarmManagerSnackbar(state = shipmentsState.snackbar)
+            AlarmManagerSnackbar(state = crossState.snackbar)
+        },
     )
 }

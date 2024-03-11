@@ -1,6 +1,7 @@
 package com.chrrissoft.room.cities.view.events
 
 import com.chrrissoft.room.base.view.event.BaseEvent
+import com.chrrissoft.room.cities.db.objects.City
 import com.chrrissoft.room.cities.db.objects.CityWithNestedRelationship
 import com.chrrissoft.room.cities.db.objects.CityWithRelationship
 import com.chrrissoft.room.cities.view.viewmodels.CitiesViewModel.EventHandler
@@ -11,6 +12,7 @@ sealed interface CitiesEvent : BaseEvent<EventHandler> {
         when (this) {
             is OnOpen -> handler.onEvent(event = this)
             is OnSave -> handler.onEvent(event = this)
+            is OnSaveRaw -> handler.onEvent(event = this)
             is OnCreate -> handler.onEvent(event = this)
             is OnChange -> handler.onEvent(event = this)
             is OnDelete -> handler.onEvent(event = this)
@@ -22,6 +24,10 @@ sealed interface CitiesEvent : BaseEvent<EventHandler> {
 
     data class OnSave(val data: Map<String, CityWithNestedRelationship>) : CitiesEvent {
         constructor(data: Pair<String, CityWithNestedRelationship>) : this(mapOf(data))
+    }
+
+    data class OnSaveRaw(val data: Map<String, City>) : CitiesEvent {
+        constructor(data: Pair<String, City>) : this(mapOf(data))
     }
 
     data class OnCreate(val data: Pair<String, CityWithNestedRelationship>) : CitiesEvent

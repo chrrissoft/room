@@ -12,7 +12,7 @@ import com.chrrissoft.room.ui.components.MyModalBottomSheet
 fun AndOrRemoveCarrierListSheet(
     added: ResState<Map<String, CarrierWithRelationship>>,
     available: ResState<Map<String, CarrierWithRelationship>>,
-    onRemove: (Map<String, CarrierWithRelationship>) -> Unit,
+    onRemove: ((Map<String, CarrierWithRelationship>) -> Unit)?,
     onAdd: (Map<String, CarrierWithRelationship>) -> Unit,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
